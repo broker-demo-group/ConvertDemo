@@ -34,7 +34,7 @@ public class NewUserCreator {
             return false;
         }
         SubAccount subAccount = new SubAccount(user.getUserName(),"x"+String.valueOf(idgenerator.nextId()));
-        
+
         return true;
     }
 }
