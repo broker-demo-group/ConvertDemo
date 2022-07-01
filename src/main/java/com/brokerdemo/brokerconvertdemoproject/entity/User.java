@@ -2,16 +2,70 @@ package com.brokerdemo.brokerconvertdemoproject.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Date;
+import java.util.List;
+
 @Document("users")
-public class User {
+public class User{
     @Id
     private String userName;
     private String passWord;
     private Date registerDate;
     private boolean isDisable;
     private Date lastLogin;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private List<String> privilage;
+    public User(){
+
+    }
+
+    public List<String> getPrivilage() {
+        return privilage;
+    }
+
+    public User(String userName, String passWord, Date registerDate, boolean isDisable, String firstName, String lastName, String email) {
+        this.userName = userName;
+        this.passWord = passWord;
+        this.registerDate = registerDate;
+        this.isDisable = isDisable;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        //this.privilage = privilage;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPrivilage(List<String> privilage) {
+        this.privilage = privilage;
+    }
+
     public String getUserName() {
         return userName;
     }

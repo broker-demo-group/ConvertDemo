@@ -1,19 +1,51 @@
 package com.brokerdemo.brokerconvertdemoproject.entity;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document("subAccounts")
+
 public class SubAccount {
-    private String _id;
+    @Id
+    private String subAccountId;
     private String belongUserId;
-
-    public String get_id() {
-        return _id;
-    }
-
-    public void set_id(String _id) {
-        this._id = _id;
-    }
-
+    private String apiKey;
+    private String passphrase;
+    private String apiSecret;
     public String getBelongUserId() {
         return belongUserId;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public String getPassphrase() {
+        return passphrase;
+    }
+
+    public void setPassphrase(String passphrase) {
+        this.passphrase = passphrase;
+    }
+
+    public String getApiSecret() {
+        return apiSecret;
+    }
+
+    public void setApiSecret(String apiSecret) {
+        this.apiSecret = apiSecret;
+    }
+
+    public SubAccount(){}
+
+    public SubAccount(String belongUserId, String subAccountName) {
+        this.belongUserId = belongUserId;
+        this.subAccountName = subAccountName;
     }
 
     public void setBelongUserId(String belongUserId) {
@@ -26,6 +58,14 @@ public class SubAccount {
 
     public void setSubAccountName(String subAccountName) {
         this.subAccountName = subAccountName;
+    }
+
+    public String getSubAccountId() {
+        return subAccountId;
+    }
+
+    public void setSubAccountId(String subAccountId) {
+        this.subAccountId = subAccountId;
     }
 
     private String subAccountName;
