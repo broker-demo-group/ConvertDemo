@@ -11,12 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.security.RolesAllowed;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.apache.tomcat.jni.Time.now;
 
@@ -31,13 +30,15 @@ public class Register {
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String userName,@RequestParam String passWord,@RequestParam String email,@RequestParam String firstName,@RequestParam String lastName){
-
+    @ResponseBody
+    public Map<String,Object> register(@RequestParam String userName, @RequestParam String passWord, @RequestParam String email, @RequestParam String firstName, @RequestParam String lastName){
         User user = new User(userName,passWord, new Date(now()),false,firstName,lastName,email);
+        HashMap<String,Object> resultMap = new HashMap<>();
         if(newUserCreator.createCommonUser(user)){
-            return "Success";
+            resultMap.put("status","success");
+            return resultMap;
         }
-        return "Error!";
-
+        resultMap.put("status","error");
+        return resultMap;
     }
 }
