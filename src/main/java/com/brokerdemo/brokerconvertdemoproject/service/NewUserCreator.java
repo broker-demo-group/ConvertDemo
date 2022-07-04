@@ -10,6 +10,7 @@ import com.brokerdemo.brokerconvertdemoproject.entity.User;
 import com.brokerdemo.brokerconvertdemoproject.utils.PassGenerator;
 import com.brokerdemo.brokerconvertdemoproject.utils.snowflakeIdgenerator;
 import com.mongodb.DuplicateKeyException;
+
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.OkxSDK;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 
 @Service
 public class NewUserCreator {
@@ -32,14 +30,8 @@ public class NewUserCreator {
     SubAccountRepository subAccountRepository;
     @Autowired
     snowflakeIdgenerator idgenerator;
-    @Value("${broker.api.apiKey}")
-    String apiKey;
-    @Value("${broker.api.apiSecretKey}")
-    String apiSecretKey;
-    @Value("${broker.api.passPhrase}")
-    String passPhrase;
-    @Value("${broker.api.isSimluate}")
-    boolean isSimluate;
+    @Autowired
+    Client client;
     @Value("${broker.api.maxRetry}")
     int MAX_Retry;
     public boolean createCommonUser(User user){
@@ -51,7 +43,7 @@ public class NewUserCreator {
         user.setPrivilage(privilage);
 
         SubAccount subAccount = null;
-        Client client = OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,isSimluate);
+//        Client client = OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,isSimluate);
         int reTry=0;
         while(subAccount == null && reTry<=MAX_Retry){
             try{
