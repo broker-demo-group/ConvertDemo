@@ -41,6 +41,11 @@
         </dependency>
 
         <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-boot-starter</artifactId>
+        <version>3.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.okxbrokerdemo</groupId>
             <artifactId>okxSdk</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -55,6 +60,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
