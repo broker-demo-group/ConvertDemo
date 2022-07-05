@@ -45,12 +45,10 @@ public class NewUserCreator {
         user.setPrivilage(privilage);
 
         SubAccount subAccount = null;
-//        Client client = OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,isSimluate);
-        int reTry=0;
+       int reTry=0;
         while(subAccount == null && reTry<=MAX_Retry){
             try{
                 String subAccountName = "x"+idgenerator.nextId();
-//                String subAccountName = "x"+idgenerator.toString();
                 ApiParam param = new ApiParam();
                 param.addParam("subAcct",subAccountName);
                 ApiSubAccountCreateDto dto = client.getBrokerService().createSubAccount(param, ApiSubAccountCreateDto.class);
@@ -61,7 +59,6 @@ public class NewUserCreator {
                 param.addParam("passphrase", PassGenerator.generatePassword(16));
                 param.addParam("perm","read_only,trade");
                 param.addParam("ip","45.12.144.105");
-//                todo execute:{"code":"50014","data":[],"msg":"Parameter ip can not be empty."}
                 ApiSubAccountKeyCreateDto apiSubAccountKeyCreateDto = client.getBrokerService().createSubAccountApiKey(param, ApiSubAccountKeyCreateDto.class);
                 tmpAccount.setApiKey(apiSubAccountKeyCreateDto.getApiKey());
                 tmpAccount.setApiSecret(apiSubAccountKeyCreateDto.getSecretKey());

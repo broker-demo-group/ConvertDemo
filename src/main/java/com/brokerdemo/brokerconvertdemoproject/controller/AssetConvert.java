@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
+import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,7 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-
+/**
+ * @author: bowen
+ * @description:
+ * @date: 2022/7/5  10:14 PM
+ **/
 @Slf4j
 @Api(tags = "Convert Backend Api")
 @CrossOrigin(origins = "*")
@@ -48,14 +53,19 @@ public class AssetConvert {
     @PostMapping(value = "asset/convert/estimate-quote")
     @ResponseBody
     public String getQuote(@RequestBody QuoteRequest quoteRequest) {
-        convertService.getQuote(quoteRequest);
-        return "";
+        String data = convertService.getQuote(client,quoteRequest).toString();
+        return new BrokerResponse(0,data,"").toString();
     }
 
     @PostMapping(value = "asset/convert/trade")
     @ResponseBody
-    public String convertTrade(@RequestParam String fromCcy, @RequestParam String toCcy, @RequestParam String amount) {
-        return new BrokerResponse(0,"", "succ").toString();
+    public String convertTrade(@RequestBody QuoteRequest quoteRequest) {
+        try{
+            convertService.convert(quoteRequest);
+        }catch (OkxApiException e){
+            return new BrokerResponse(e.getCode(),"",e.getMessage()).toString();
+        }
+        return new BrokerResponse().toString();
     }
 
 
