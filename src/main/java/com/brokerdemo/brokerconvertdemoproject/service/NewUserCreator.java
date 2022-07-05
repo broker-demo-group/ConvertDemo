@@ -48,10 +48,11 @@ public class NewUserCreator {
         user.setPrivilage(privilage);
 
         SubAccount subAccount = null;
-        int reTry=0;
+       int reTry=0;
         while(subAccount == null && reTry<=MAX_Retry){
             try{
                 String subAccountName = "x"+idgenerator.nextId();
+//                String subAccountName = "x"+idgenerator.toString();
                 ApiParam param = new ApiParam();
                 param.addParam("subAcct",subAccountName);
                 ApiSubAccountCreateDto dto = client.getBrokerService().createSubAccount(param, ApiSubAccountCreateDto.class);

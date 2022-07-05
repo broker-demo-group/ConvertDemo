@@ -1,6 +1,5 @@
 package com.brokerdemo.brokerconvertdemoproject.entity;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -69,4 +68,16 @@ public class SubAccount {
     }
 
     private String subAccountName;
+
+    @Override
+    public String toString() {
+        return "SubAccount{" +
+                "subAccountId='" + subAccountId + '\'' +
+                ", belongUserId='" + belongUserId + '\'' +
+                ", apiKey='" + apiKey + '\'' +
+                ", passphrase='" + passphrase + '\'' +
+                ", apiSecret='" + apiSecret + '\'' +
+                ", subAccountName='" + subAccountName + '\'' +
+                '}';
+    }
 }
