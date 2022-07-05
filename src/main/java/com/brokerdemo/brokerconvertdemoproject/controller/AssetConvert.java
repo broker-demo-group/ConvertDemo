@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.annotation.security.RolesAllowed;
 
 @Slf4j
 @Api(tags = "Convert Backend Api")
@@ -28,11 +29,12 @@ public class AssetConvert {
     Client client;
     @ApiOperation(value = "获取所有支持闪兑的虚拟货币列表", notes = "some notes ")
     @GetMapping(value = "/asset/convert/currencies")
+    @RolesAllowed("ROLE_USER")
     public String getCurrencies() {
         log.info("/asset/convert/currencies");
         return client.getAssetConvert().getConvertCurrencies(new ParamMap(), JsonObject.class).toString();
     }
-
+    @RolesAllowed("ROLE_USER")
     @PostMapping(value = "asset/convert/estimate-quote")
     public String getQuote(@RequestBody Quote quote) {
         return client.getAssetConvert().convertEstimateQuote(quote, JsonObject.class).toString();

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class SystemController {
     @GetMapping("system/status/{state}")
     @ApiOperation(value = "获取 okx 系统状态", notes = "notes")
     @ApiImplicitParams({@ApiImplicitParam(name = "state", value = "state", required = true, paramType = "path", example = "canceled")})
-    public String getStatus(@PathVariable String state) {
+    public String getStatus(@PathVariable String state) throws IOException {
         ParamMap paramMap = new ParamMap();
         paramMap.add("state", state);
         List<JsonObject> status = client.getStatus().getStatus(paramMap, JsonObject.class);

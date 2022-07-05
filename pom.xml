@@ -54,6 +54,11 @@
             <systemPath>${project.basedir}/lib/okxSdk-1.0-SNAPSHOT-jar-with-dependencies.jar</systemPath>
 
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+        </dependency>
 
     </dependencies>
 
