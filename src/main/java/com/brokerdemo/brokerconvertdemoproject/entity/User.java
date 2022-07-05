@@ -106,4 +106,20 @@ public class User{
     public void setLastLogin(Date lastLogin) {
         this.lastLogin = lastLogin;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userName='" + userName + '\'' +
+                ", passWord='" + passWord + '\'' +
+                ", registerDate=" + registerDate +
+                ", isDisable=" + isDisable +
+                ", lastLogin=" + lastLogin +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", privilage=" + privilage +
+                '}';
+    }
 }
+

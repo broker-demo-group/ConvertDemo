@@ -1,29 +1,27 @@
 package com.brokerdemo.brokerconvertdemoproject.controller;
 
-import com.brokerdemo.brokerconvertdemoproject.dao.UserRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.User;
+import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.brokerdemo.brokerconvertdemoproject.service.NewUserCreator;
-import com.mongodb.DuplicateKeyException;
+import io.swagger.annotations.ApiOperation;
+import org.okxbrokerdemo.exception.OkxApiException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.security.RolesAllowed;
-import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.apache.tomcat.jni.Time.now;
 
-@Controller
+@RestController
 public class Register {
     @Autowired
     NewUserCreator newUserCreator;
-
+    @ApiOperation(value = "测试，返回Register", notes = "some notes ")
     @GetMapping("/register")
     public String register(){
         return "Register";
@@ -31,14 +29,15 @@ public class Register {
 
     @PostMapping("/register")
     @ResponseBody
-    public Map<String,Object> register(@RequestParam String userName, @RequestParam String passWord, @RequestParam String email, @RequestParam String firstName, @RequestParam String lastName){
-        User user = new User(userName,passWord, new Date(now()),false,firstName,lastName,email);
+    public String register(@RequestParam String userName, @RequestParam String passWord, @RequestParam String email,
+                      @RequestParam String firstName, @RequestParam String lastName){
+        User user = new User(userName,passWord, new Date(),false,firstName,lastName,email);
         HashMap<String,Object> resultMap = new HashMap<>();
-        if(newUserCreator.createCommonUser(user)){
-            resultMap.put("status","success");
-            return resultMap;
+        try {
+            newUserCreator.createCommonUser(user);
+        }catch (OkxApiException e){
+            return new BrokerResponse(1,"",e.getMessage()).toString();
         }
-        resultMap.put("status","error");
-        return resultMap;
+        return  new BrokerResponse().toString();
     }
 }
