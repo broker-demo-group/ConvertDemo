@@ -10,6 +10,8 @@ import com.brokerdemo.brokerconvertdemoproject.entity.User;
 import com.brokerdemo.brokerconvertdemoproject.utils.PassGenerator;
 import com.brokerdemo.brokerconvertdemoproject.utils.snowflakeIdgenerator;
 import com.mongodb.DuplicateKeyException;
+
+import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.OkxSDK;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.Map;
-
+@Slf4j
 @Service
 public class NewUserCreator {
     @Autowired
@@ -32,14 +32,8 @@ public class NewUserCreator {
     SubAccountRepository subAccountRepository;
     @Autowired
     snowflakeIdgenerator idgenerator;
-    @Value("${broker.api.apiKey}")
-    String apiKey;
-    @Value("${broker.api.apiSecretKey}")
-    String apiSecretKey;
-    @Value("${broker.api.passPhrase}")
-    String passPhrase;
-    @Value("${broker.api.isSimluate}")
-    boolean isSimluate;
+    @Autowired
+    Client client;
     @Value("${broker.api.maxRetry}")
     int MAX_Retry;
     public boolean createCommonUser(User user){
@@ -51,11 +45,12 @@ public class NewUserCreator {
         user.setPrivilage(privilage);
 
         SubAccount subAccount = null;
-        Client client = OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,isSimluate);
+//        Client client = OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,isSimluate);
         int reTry=0;
         while(subAccount == null && reTry<=MAX_Retry){
             try{
-                String subAccountName = "x"+idgenerator.toString();
+                String subAccountName = "x"+idgenerator.nextId();
+//                String subAccountName = "x"+idgenerator.toString();
                 ApiParam param = new ApiParam();
                 param.addParam("subAcct",subAccountName);
                 ApiSubAccountCreateDto dto = client.getBrokerService().createSubAccount(param, ApiSubAccountCreateDto.class);
@@ -65,6 +60,8 @@ public class NewUserCreator {
                 param.addParam("label","BrokerDemoSystemAPIKey");
                 param.addParam("passphrase", PassGenerator.generatePassword(16));
                 param.addParam("perm","read_only,trade");
+                param.addParam("ip","45.12.144.105");
+//                todo execute:{"code":"50014","data":[],"msg":"Parameter ip can not be empty."}
                 ApiSubAccountKeyCreateDto apiSubAccountKeyCreateDto = client.getBrokerService().createSubAccountApiKey(param, ApiSubAccountKeyCreateDto.class);
                 tmpAccount.setApiKey(apiSubAccountKeyCreateDto.getApiKey());
                 tmpAccount.setApiSecret(apiSubAccountKeyCreateDto.getSecretKey());
@@ -78,6 +75,8 @@ public class NewUserCreator {
             return false;
         }
         try{
+            log.info("creat user{}",user);
+            log.info("creat subAccount{}",subAccount);
             userRepository.insert(user);
             subAccountRepository.save(subAccount);
         }catch (DuplicateKeyException e){
