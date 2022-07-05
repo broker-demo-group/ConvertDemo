@@ -36,8 +36,8 @@ public class snowflakeIdgenerator {
     private final long sequenceMask = -1L ^ (-1L << sequenceBits);
 
     /** 工作机器ID(0~31) */
-    @Value("${broker.workerId}")
-    private long workerId;
+    //@Value("${broker.workerId}")
+    private long workerId = 1l;
 
 
 
