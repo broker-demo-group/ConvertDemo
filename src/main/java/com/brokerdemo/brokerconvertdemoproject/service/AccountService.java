@@ -3,6 +3,7 @@ package com.brokerdemo.brokerconvertdemoproject.service;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.exception.BrokerApiException;
+import com.brokerdemo.brokerconvertdemoproject.utils.LRUCache;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +11,7 @@ import com.mongodb.MongoException;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.OkxSDK;
 import org.okxbrokerdemo.service.entry.ParamMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,8 @@ public class AccountService {
     boolean isSimulate;
     @Resource
     SubAccountRepository subAccountRepository;
-
+    @Autowired
+    LRUCache<String,Client> lruCache;
     public String getAccountBalance(String username,String ccy) throws IOException {
         ParamMap param = new ParamMap();
         param.add("ccy", ccy);
@@ -49,6 +52,11 @@ public class AccountService {
 
         SubAccount subAccount;
         subAccount = subAccountRepository.findSubAccountByUserName(username);
-        return OkxSDK.getClient(subAccount.getApiKey(),subAccount.getApiSecret(),subAccount.getPassphrase(),isSimulate);
+        if(lruCache.getValue(username) != null){
+            return lruCache.getValue(username);
+        }
+        Client subClient = OkxSDK.getClient(subAccount.getApiKey(),subAccount.getApiSecret(),subAccount.getPassphrase(),isSimulate);
+        lruCache.putValue(username,subClient);
+        return subClient;
     }
 }
