@@ -1,17 +1,28 @@
 package com.brokerdemo.brokerconvertdemoproject.service;
 
+import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
+import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
+import com.brokerdemo.brokerconvertdemoproject.entity.BalanceEntity;
 import com.brokerdemo.brokerconvertdemoproject.entity.ConvertPair;
 import com.brokerdemo.brokerconvertdemoproject.entity.Quote;
 import com.brokerdemo.brokerconvertdemoproject.entity.QuoteRequest;
+import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
 import com.google.gson.JsonObject;
+import com.mongodb.MongoException;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.OkxSDK;
 import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
+
+import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.CONVERT_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_QUOTE_ERROR;
 
 /**
  * @author: bowen
@@ -21,18 +32,20 @@ import javax.annotation.Resource;
 @Service
 public class ConvertService {
 
-    @Value("${broker.api.isSimulate}")
-    boolean isSimulate;
+
+
+    @Resource
+    AccountService accountService;
 
     /**
      * 根据用户的 quoteRequest 进行闪兑交易
      */
-    public void convert(QuoteRequest quoteRequest) {
+    public void convert(QuoteRequest quoteRequest,String username) {
 //        quoteRequest -> getQuote -> doConvert
-        Client subAccountClient = getSubAccountClint();
+        Client subAccountClient = accountService.getSubAccountClint(username);
         Quote quote = getQuote(subAccountClient, quoteRequest);
         if (!doConvert(subAccountClient, quote)) {
-            throw new OkxApiException("convert rejected", 303);
+            throw new OkxApiException("convert rejected", CONVERT_ERROR);
         }
     }
 
@@ -53,7 +66,7 @@ public class ConvertService {
         try {
             tradeResult = subAccountClient.getAssetConvert().convertTrade(param, JsonObject.class);
         } catch (OkxApiException e) {
-            throw new OkxApiException("doConvert:" + e.getMessage(), 303);
+            throw new OkxApiException("doConvert:" + e.getMessage(), CONVERT_ERROR);
         }
         String state = tradeResult.get("state").getAsString();
         return "fullyFilled".equals(state);
@@ -79,7 +92,7 @@ public class ConvertService {
         try {
             quote = client.getAssetConvert().convertEstimateQuote(param, Quote.class);
         } catch (OkxApiException e) {
-            throw new OkxApiException("getConvertQuote:" + e.getMessage(), 302);
+            throw new OkxApiException("getConvertQuote:" + e.getMessage(), REQUIRE_QUOTE_ERROR);
         }
         return quote;
     }
@@ -96,20 +109,9 @@ public class ConvertService {
         try {
             convertCurrencyPair = client.getAssetConvert().getConvertCurrencyPair(param, ConvertPair.class);
         } catch (OkxApiException e) {
-            throw new OkxApiException("getConvertPair:" + e.getMessage(), 301);
+            throw new OkxApiException("getConvertPair:" + e.getMessage(), REQUIRE_CONVERTPAIR_ERROR);
         }
         return convertCurrencyPair;
-    }
-
-    /**临时测试用*/
-    @Resource
-    Client client;
-
-    public Client getSubAccountClint() {
-        // todo 根据当前登录用户对应SubAccount的apikey 和 apiSecret 创建的Client
-
-//        return OkxSDK.getClient("", "", "", isSimulate);
-        return client;
     }
 
 }
