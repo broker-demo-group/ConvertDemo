@@ -11,7 +11,7 @@ import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
-import java.security.Principal;
 
 /**
  * @author: bowen
@@ -45,50 +44,40 @@ public class AssetConvert {
 
     @Resource
     ConvertService convertService;
+    @Resource
+    AccountService accountService;
 
     @ApiOperation(value = "获取所有支持闪兑的虚拟货币列表", notes = "some notes ")
-    @GetMapping(value = "/asset/convert/currencies")
     @RolesAllowed("ROLE_USER")
-    @ResponseBody
-    public String getCurrencies(Principal principal) {
-
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
+    @GetMapping(value = "/asset/convert/currencies")
+    public String getCurrencies() {
         log.info("/asset/convert/currencies");
         String data = client.getAssetConvert().getConvertCurrencies(new ParamMap(), JsonObject.class).toString();
-        return new BrokerResponse(0,data, "").toString();
+        return new BrokerResponse(0, data, "").toString();
     }
+
     @RolesAllowed("ROLE_USER")
     @PostMapping(value = "asset/convert/estimate-quote")
-    @ResponseBody
-    public String getQuote(@RequestBody QuoteRequest quoteRequest, Principal principal) {
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
+    public String getQuote(@RequestBody QuoteRequest quoteRequest,@ApiIgnore Authentication authentication) {
+        String username = authentication.getName();
+        String data;
+        try {
+            Client subAccountClint = accountService.getSubAccountClint(username);
+            data = convertService.getQuote(subAccountClint, quoteRequest).toString();
+        } catch (RuntimeException e) {
+            return new BrokerResponse(100, "", e.getMessage()).toString();
         }
-        String data = convertService.getQuote(client,quoteRequest).toString();
-        return new BrokerResponse(0,data,"").toString();
+        return new BrokerResponse(0, data, "").toString();
     }
 
     @PostMapping(value = "asset/convert/trade")
-    @ResponseBody
-    public String convertTrade(@RequestBody QuoteRequest quoteRequest,Principal principal) {
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
-        try{
-            convertService.convert(quoteRequest);
-        }catch (OkxApiException e){
-            return new BrokerResponse(e.getCode(),"",e.getMessage()).toString();
+    @RolesAllowed("ROLE_USER")
+    public String convertTrade(@RequestBody QuoteRequest quoteRequest, @ApiIgnore Authentication authentication) {
+        String username = authentication.getName();
+        try {
+            convertService.convert(quoteRequest, username);
+        } catch (OkxApiException e) {
+            return new BrokerResponse(e.getCode(), "", e.getMessage()).toString();
         }
         return new BrokerResponse().toString();
     }

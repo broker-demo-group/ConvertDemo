@@ -3,6 +3,7 @@ package com.brokerdemo.brokerconvertdemoproject.entity;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.okxbrokerdemo.service.entry.ParamMap;
 
 /**
  * @author: bowen
@@ -39,4 +40,24 @@ public class Quote {
     @SerializedName("ttlMs")
     public String ttlMs;
 //    public String
+
+
+    @Override
+    public String toString() {
+        ParamMap paramMap = new ParamMap();
+        paramMap.add("baseCcy",baseCcy);
+        paramMap.add("baseSz",baseSz);
+        paramMap.add("clQReqId",clQReqId);
+        paramMap.add("cnvtPx",cnvtPx);
+        paramMap.add("origRfqSz",origRfqSz);
+        paramMap.add("quoteCcy",quoteCcy);
+        paramMap.add("quoteId",quoteId);
+        paramMap.add("quoteSz",quoteSz);
+        paramMap.add("quoteTime",quoteTime);
+        paramMap.add("rfqSz",rfqSz);
+        paramMap.add("rfqSzCcy",rfqSzCcy);
+        paramMap.add("side",side);
+        paramMap.add("ttlMs",ttlMs);
+        return paramMap.getPayLoadJson();
+    }
 }
