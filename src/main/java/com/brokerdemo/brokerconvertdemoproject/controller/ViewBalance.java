@@ -23,6 +23,7 @@ import java.util.Map;
 public class ViewBalance {
     @Autowired
     UserBalanceQuery userBalanceQuery;
+
     @RolesAllowed("ROLE_USER")
     @GetMapping("/user/viewAccountBalance")
     public List viewUserAccountBalance(Principal principal) throws IOException {
@@ -35,6 +36,7 @@ public class ViewBalance {
 
         return userBalanceQuery.accountBalanceQuery(username);
     }
+
     @RolesAllowed("ROLE_USER")
     @GetMapping("/user/viewAssetBalance")
     public List viewAssetBalance(Principal principal) throws IOException {
