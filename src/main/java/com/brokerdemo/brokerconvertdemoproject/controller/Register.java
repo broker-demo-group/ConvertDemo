@@ -25,9 +25,11 @@ public class Register {
     @Autowired
     private NewUserCreator newUserCreator;
 
+
+
     @GetMapping("/register")
     public String register(){
-        return "Register";
+        return "register";
     }
 
     @PostMapping("/register")

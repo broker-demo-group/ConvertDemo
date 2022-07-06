@@ -11,6 +11,7 @@ import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +51,7 @@ public class AssetConvert {
     @RolesAllowed("ROLE_USER")
     @ResponseBody
     public String getCurrencies(Principal principal) {
+
         String username;
         if (principal instanceof UserDetails) {
             username = ((UserDetails) principal).getUsername();
