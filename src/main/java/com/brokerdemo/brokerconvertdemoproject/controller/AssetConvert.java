@@ -2,6 +2,7 @@ package com.brokerdemo.brokerconvertdemoproject.controller;
 
 import com.brokerdemo.brokerconvertdemoproject.entity.QuoteRequest;
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
+import com.brokerdemo.brokerconvertdemoproject.service.AccountService;
 import com.brokerdemo.brokerconvertdemoproject.service.ConvertService;
 import com.google.gson.JsonObject;
 import io.swagger.annotations.Api;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
