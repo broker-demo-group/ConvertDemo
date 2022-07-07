@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.UNDEFINED_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.UNDEFINED_ERROR;
 
 /**
  * @author: bowen

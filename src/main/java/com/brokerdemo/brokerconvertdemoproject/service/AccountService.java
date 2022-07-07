@@ -2,7 +2,6 @@ package com.brokerdemo.brokerconvertdemoproject.service;
 
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
-import com.brokerdemo.brokerconvertdemoproject.exception.BrokerApiException;
 import com.brokerdemo.brokerconvertdemoproject.utils.LRUCache;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,7 +24,7 @@ public class AccountService {
     SubAccountRepository subAccountRepository;
     @Autowired
     LRUCache<String,Client> lruCache;
-    public String getAccountBalance(String username,String ccy) throws IOException {
+    public String getAccountBalance(String username,String ccy) {
         ParamMap param = new ParamMap();
         param.add("ccy", ccy);
         Client client = getSubAccountClint(username);

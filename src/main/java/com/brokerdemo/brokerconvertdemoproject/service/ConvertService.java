@@ -20,9 +20,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.CONVERT_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_QUOTE_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.CONVERT_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_QUOTE_ERROR;
+
 
 /**
  * @author: bowen
