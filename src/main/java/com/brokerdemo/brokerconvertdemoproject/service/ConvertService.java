@@ -4,6 +4,7 @@ import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.BalanceEntity;
 import com.brokerdemo.brokerconvertdemoproject.entity.ConvertPair;
+import com.brokerdemo.brokerconvertdemoproject.entity.ConvertRequest;
 import com.brokerdemo.brokerconvertdemoproject.entity.Quote;
 import com.brokerdemo.brokerconvertdemoproject.entity.QuoteRequest;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
@@ -34,17 +35,16 @@ import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCod
 public class ConvertService {
 
 
-
     @Resource
     AccountService accountService;
 
     /**
      * 根据用户的 quoteRequest 进行闪兑交易
      */
-    public void convert(QuoteRequest quoteRequest,String username) {
-//        quoteRequest -> getQuote -> doConvert
+    public void convert(ConvertRequest convertRequest, String username) {
+//        ConvertRequest -> getQuote -> doConvert
         Client subAccountClient = accountService.getSubAccountClint(username);
-        Quote quote = getQuote(subAccountClient, quoteRequest);
+        Quote quote = getQuote(subAccountClient, convertRequest);
         if (!doConvert(subAccountClient, quote)) {
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
         }

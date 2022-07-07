@@ -1,5 +1,6 @@
 package com.brokerdemo.brokerconvertdemoproject.controller;
 
+import com.brokerdemo.brokerconvertdemoproject.entity.ConvertRequest;
 import com.brokerdemo.brokerconvertdemoproject.entity.QuoteRequest;
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.brokerdemo.brokerconvertdemoproject.service.AccountService;
@@ -74,10 +75,10 @@ public class AssetConvert {
 
     @PostMapping(value = "asset/convert/trade")
     @RolesAllowed("ROLE_USER")
-    public String convertTrade(@RequestBody QuoteRequest quoteRequest, @ApiIgnore Authentication authentication) {
+    public String convertTrade(@RequestBody ConvertRequest convertRequest, @ApiIgnore Authentication authentication) {
         String username = authentication.getName();
         try {
-            convertService.convert(quoteRequest, username);
+            convertService.convert(convertRequest, username);
         } catch (OkxApiException e) {
             return new BrokerResponse(e.getCode(), "", e.getMessage()).toString();
         }
