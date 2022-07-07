@@ -43,7 +43,11 @@ public class ConvertService {
      */
     public void convert(ConvertRequest convertRequest, String username) {
 //        ConvertRequest -> getQuote -> doConvert
+
         Client subAccountClient = accountService.getSubAccountClint(username);
+        if(!checkQuote(subAccountClient,convertRequest)){
+            throw new OkxApiException("balance insufficient", CONVERT_ERROR);
+        }
         Quote quote = getQuote(subAccountClient, convertRequest);
         if (!doConvert(subAccountClient, quote)) {
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
@@ -114,5 +118,36 @@ public class ConvertService {
         }
         return convertCurrencyPair;
     }
+
+    public boolean checkQuote(Client client, ConvertRequest convertRequest) {
+        String mode = convertRequest.getMode();
+        if (!("funding".equals(mode) || "trading".equals(mode) ||"both".equals(mode))) {
+            throw new RuntimeException("交易模式错误");
+        }
+
+        double tradingBalance, amount, fundingBalance;
+
+        tradingBalance = Double.parseDouble(accountService.getTradingBalance(client, convertRequest.getFromCcy()));
+        fundingBalance = Double.parseDouble(accountService.getFundingBalance(client, convertRequest.getFromCcy()));
+        amount = Double.parseDouble(convertRequest.getAmount());
+
+        if ("funding".equals(mode)) {
+            return fundingBalance >= amount;
+        } else if ("trading".equals(mode)) {
+            return tradingBalance >= amount;
+        } else if ("both".equals(mode)){
+            if (amount > fundingBalance + tradingBalance) {
+                return false;
+            }
+            if (amount > fundingBalance) {
+                Double transferAmount = amount - fundingBalance;
+                accountService.tradingTransfer2Funding(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
+            }
+        }else{
+            throw new RuntimeException("不存在在 mode");
+        }
+        return true;
+    }
+
 
 }
