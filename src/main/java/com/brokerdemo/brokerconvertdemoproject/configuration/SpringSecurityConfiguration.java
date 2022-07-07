@@ -45,7 +45,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable()
                 .formLogin()
                 .loginPage("/login.html")
-                .loginProcessingUrl("/perform_login").permitAll()
+                .loginProcessingUrl("/perform_login")
                 .failureUrl("/login.html?error=true")
                 .successForwardUrl("/dashboard")
                 .and()
