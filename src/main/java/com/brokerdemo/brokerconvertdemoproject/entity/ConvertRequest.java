@@ -28,15 +28,15 @@ import io.swagger.annotations.ApiModelProperty;
  **/
 @ApiModel(value = "ConvertRequest", description = "some description")
 public class ConvertRequest extends QuoteRequest{
-    @ApiModelProperty(value = "fromCcy", required = true, example = "BTC")
+    @ApiModelProperty(value = "fromCcy", required = true, example = "USDT")
     private String fromCcy;
-    @ApiModelProperty(value = "toCcy", required = true, example = "USDT")
+    @ApiModelProperty(value = "toCcy", required = true, example = "BTC")
     private String toCcy;
-    @ApiModelProperty(value = "amount", required = true, example = "0.1")
+    @ApiModelProperty(value = "amount", required = true, example = "10")
     private String amount;
 
     // funding\trading\both
-    @ApiModelProperty(value = "mode", required = true, example = "funding")
+    @ApiModelProperty(value = "mode", required = true, example = "both")
     private String mode;
 
     public String getMode() {

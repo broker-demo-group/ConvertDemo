@@ -17,12 +17,12 @@ import java.util.Map;
  * @description: 
  * @date: 2022/7/7  3:02 PM
  **/
-//@ControllerAdvice
+@ControllerAdvice
 public class ExceptionAdvice implements ErrorCode {
 
     private Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
 
-    @ExceptionHandler({OkxApiException.class, MongoException.class})
+    @ExceptionHandler
     @ResponseBody
     public BrokerResponse handleException(Exception e) {
         int code;
