@@ -2,14 +2,11 @@ package com.brokerdemo.brokerconvertdemoproject.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-
 import java.util.Date;
 import java.util.List;
 
 @Document("users")
-public class User{
+public class User {
     @Id
     private String userName;
     private String passWord;
@@ -20,7 +17,8 @@ public class User{
     private String lastName;
     private String email;
     private List<String> privilage;
-    public User(){
+
+    public User() {
 
     }
 
