@@ -4,6 +4,7 @@ import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.BalanceEntity;
 import com.brokerdemo.brokerconvertdemoproject.entity.ConvertPair;
+import com.brokerdemo.brokerconvertdemoproject.entity.ConvertRequest;
 import com.brokerdemo.brokerconvertdemoproject.entity.Quote;
 import com.brokerdemo.brokerconvertdemoproject.entity.QuoteRequest;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
@@ -20,9 +21,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.CONVERT_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_QUOTE_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.CONVERT_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_QUOTE_ERROR;
+
 
 /**
  * @author: bowen
@@ -33,17 +35,20 @@ import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIR
 public class ConvertService {
 
 
-
     @Resource
     AccountService accountService;
 
     /**
      * 根据用户的 quoteRequest 进行闪兑交易
      */
-    public void convert(QuoteRequest quoteRequest,String username) {
-//        quoteRequest -> getQuote -> doConvert
+    public void convert(ConvertRequest convertRequest, String username) {
+//        ConvertRequest -> getQuote -> doConvert
+
         Client subAccountClient = accountService.getSubAccountClint(username);
-        Quote quote = getQuote(subAccountClient, quoteRequest);
+        if(!checkQuote(subAccountClient,convertRequest)){
+            throw new OkxApiException("balance insufficient", CONVERT_ERROR);
+        }
+        Quote quote = getQuote(subAccountClient, convertRequest);
         if (!doConvert(subAccountClient, quote)) {
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
         }
@@ -113,5 +118,36 @@ public class ConvertService {
         }
         return convertCurrencyPair;
     }
+
+    public boolean checkQuote(Client client, ConvertRequest convertRequest) {
+        String mode = convertRequest.getMode();
+        if (!("funding".equals(mode) || "trading".equals(mode) ||"both".equals(mode))) {
+            throw new RuntimeException("交易模式错误");
+        }
+
+        double tradingBalance, amount, fundingBalance;
+
+        tradingBalance = Double.parseDouble(accountService.getTradingBalance(client, convertRequest.getFromCcy()));
+        fundingBalance = Double.parseDouble(accountService.getFundingBalance(client, convertRequest.getFromCcy()));
+        amount = Double.parseDouble(convertRequest.getAmount());
+
+        if ("funding".equals(mode)) {
+            return fundingBalance >= amount;
+        } else if ("trading".equals(mode)) {
+            return tradingBalance >= amount;
+        } else if ("both".equals(mode)){
+            if (amount > fundingBalance + tradingBalance) {
+                return false;
+            }
+            if (amount > fundingBalance) {
+                Double transferAmount = amount - fundingBalance;
+                accountService.tradingTransfer2Funding(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
+            }
+        }else{
+            throw new RuntimeException("不存在在 mode");
+        }
+        return true;
+    }
+
 
 }

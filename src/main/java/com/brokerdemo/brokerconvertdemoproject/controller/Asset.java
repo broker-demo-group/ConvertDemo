@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.UNDEFINED_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.UNDEFINED_ERROR;
 
 /**
  * @author: bowen
@@ -70,8 +70,24 @@ public class Asset {
         }catch (RuntimeException e){
             return new BrokerResponse(UNDEFINED_ERROR,"","未知错误").toString();
         }
-
-
         return new BrokerResponse(0, data, "").toString();
+    }
+    @ApiOperation(value = "资金账户与交易账户资金转移 [1:funding to trading] [2:trading to funding]", notes = "some notes ")
+    @GetMapping(value = "/asset/transfer")
+    @RolesAllowed("ROLE_USER")
+    public String transfer(@RequestParam(value = "mode") String mode,
+                                   @RequestParam(value = "ccy") String ccy,
+                                   @RequestParam(value = "amount") String amount,
+                                   @ApiIgnore Authentication authentication) throws IOException {
+        int i = Integer.parseInt(mode);
+        String username = authentication.getName();
+        Client subAccountClint = accountService.getSubAccountClint(username);
+        if(i == 1){
+            accountService.fundingTransfer2Trading(subAccountClint,amount,ccy);
+        }
+        if(i == 2){
+            accountService.tradingTransfer2Funding(subAccountClint,amount,ccy);
+        }
+        return new BrokerResponse(0, "", "success").toString();
     }
 }

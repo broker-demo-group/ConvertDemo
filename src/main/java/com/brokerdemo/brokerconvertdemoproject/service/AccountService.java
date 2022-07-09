@@ -2,7 +2,6 @@ package com.brokerdemo.brokerconvertdemoproject.service;
 
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
-import com.brokerdemo.brokerconvertdemoproject.exception.BrokerApiException;
 import com.brokerdemo.brokerconvertdemoproject.utils.LRUCache;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -17,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
+
 @Service
 public class AccountService {
     @Value("${broker.api.isSimulate}")
@@ -25,7 +26,7 @@ public class AccountService {
     SubAccountRepository subAccountRepository;
     @Autowired
     LRUCache<String,Client> lruCache;
-    public String getAccountBalance(String username,String ccy) throws IOException {
+    public String getAccountBalance(String username,String ccy) {
         ParamMap param = new ParamMap();
         param.add("ccy", ccy);
         Client client = getSubAccountClint(username);
@@ -44,12 +45,42 @@ public class AccountService {
         return result.toString();
     }
 
-//    @Resource
-    Client client;
-    public Client getSubAccountClint(String username) {
-        // test
-//        return client;
+    public String getFundingBalance(Client client,String ccy){
+        ParamMap paramMap = new ParamMap();
+        paramMap.add("ccy",ccy);
+        List<JsonObject> assetBalance = client.getAsset().getAssetBalance(paramMap, JsonObject.class);
 
+        return assetBalance.get(0).get("availBal").getAsString();
+    }
+    public String getTradingBalance(Client client,String ccy){
+        String tradingBalance;
+        ParamMap paramMap = new ParamMap();
+        paramMap.add("cyy",ccy);
+        JsonArray jsonArray =
+                client.getAccount().getBalance(paramMap, JsonObject.class).get(0).get("details").getAsJsonArray();
+        if(jsonArray.size()==0){
+            tradingBalance = "0";
+        }else{
+            tradingBalance = jsonArray.get(0).getAsJsonObject().get("availBal").getAsString();
+        }
+        return tradingBalance;
+    }
+    public void tradingTransfer2Funding(Client client,String amount,String ccy){
+        this.doTransfer(client,amount,ccy,"18","6");
+    }
+    public void fundingTransfer2Trading(Client client,String amount,String ccy){
+        this.doTransfer(client,amount,ccy,"6","18");
+    }
+    public void doTransfer(Client client,String amount,String ccy,String from,String to){
+        ParamMap param = new ParamMap();
+        param.add("ccy", ccy);
+        param.add("amt", amount);
+        param.add("from", from); // 6:funding account 18: trading account
+        param.add("to", to);
+        client.getAsset().assetTransfer(param, JsonObject.class);
+    }
+
+    public Client getSubAccountClint(String username) {
         SubAccount subAccount;
         subAccount = subAccountRepository.findSubAccountByUserName(username);
         if(lruCache.getValue(username) != null){
