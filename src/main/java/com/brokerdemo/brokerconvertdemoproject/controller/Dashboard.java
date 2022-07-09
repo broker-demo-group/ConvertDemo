@@ -19,4 +19,5 @@ public class Dashboard {
         result.put("user",authentication.getName());
         return result;
     }
+
 }
