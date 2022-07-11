@@ -50,14 +50,7 @@
         <artifactId>springfox-boot-starter</artifactId>
         <version>3.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.okxbrokerdemo</groupId>
-            <artifactId>okxSdk</artifactId>
-            <version>1.0-SNAPSHOT</version>
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${pom.basedir}/lib/okxSdk-1.0-SNAPSHOT-jar-with-dependencies.jar</systemPath>-->
 
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -68,7 +61,13 @@
             <artifactId>com-google-gson</artifactId>
             <version>RELEASE113</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.okxbrokerdemo</groupId>
+            <artifactId>okxSdk</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/lib/okxSdk-1.0-SNAPSHOT-jar-with-dependencies.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>

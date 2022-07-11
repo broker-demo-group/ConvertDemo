@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+/**@Configuration
 public class WebConfiguration implements WebMvcConfigurer {
 
     @Autowired
@@ -18,7 +18,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
                 .excludePathPatterns("/login","/swagger-ui/**","/swagger-resources" +
-                "/**","/error","/v2/api-docs");
+                "/**","/error","/v2/api-docs","/**");
     }
 
 
@@ -31,4 +31,4 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
     }
-}
+}**/

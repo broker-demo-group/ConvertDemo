@@ -23,10 +23,10 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.userDetailsService = userDetailsService;
     }
 
-    @Bean
+   /** @Bean
     public AuthenticationManager customAuthenticationManager() throws Exception {
         return authenticationManager();
-    }
+    }**/
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -39,8 +39,9 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(bCryptPasswordEncoder());
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
+    @Override @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+
         return super.authenticationManagerBean();
     }
 
@@ -58,6 +59,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/register/**").permitAll()
                 .antMatchers("/api/restlogin/**").permitAll()
+                .antMatchers("/api/restlogin**").permitAll()
+                .antMatchers("/api/restlogin").permitAll()
                 .and()
                 .httpBasic()
                 .and()
@@ -66,6 +69,6 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
     }
 }
