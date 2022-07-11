@@ -34,7 +34,7 @@ import javax.annotation.security.RolesAllowed;
  **/
 @Slf4j
 @Api(tags = "Convert Backend Api")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @RestController
 /**
  *
@@ -51,7 +51,6 @@ public class AssetConvert {
     AccountService accountService;
 
     @ApiOperation(value = "获取所有支持闪兑的虚拟货币列表", notes = "some notes ")
-    @RolesAllowed("ROLE_USER")
     @GetMapping(value = "/asset/convert/currencies")
     public String getCurrencies() {
         log.info("/asset/convert/currencies");

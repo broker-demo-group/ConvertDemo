@@ -1,6 +1,7 @@
 package com.brokerdemo.brokerconvertdemoproject.cache;
 
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheStats;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
 
@@ -15,11 +16,17 @@ public class LocalCache implements Cache {
 
     @Override
     public String get(String key) {
+
         return cache.getIfPresent(key);
     }
 
     @Override
     public void set(String key, String value) {
         cache.put(key, value);
+    }
+
+    @Override
+    public void remove(String key) {
+        cache.invalidate(key);
     }
 }

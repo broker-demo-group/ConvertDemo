@@ -22,7 +22,7 @@ public class ExceptionAdvice implements ErrorCode {
 
     private Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
 
-    @ExceptionHandler
+    @ExceptionHandler({MongoException.class,OkxApiException.class})
     @ResponseBody
     public BrokerResponse handleException(Exception e) {
         int code;

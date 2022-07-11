@@ -36,7 +36,7 @@ import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCod
 @Slf4j
 @Api(tags = "Asset Backend Api")
 @RestController
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class Asset {
     @Resource
     Client client;
@@ -46,8 +46,8 @@ public class Asset {
 
     @ApiOperation(value = "获取所有币的信息和图标的url", notes = "some notes ")
     @GetMapping(value = "/asset/currencies")
-    public String getCurrencies() {
-        log.info("/asset/currencies");
+    public String getCurrencies(Authentication authentication) {
+        log.info("/asset/currencies  {}",authentication.getPrincipal());
         String data = client.getAsset().getCurrencies(new ParamMap(), JsonObject.class).toString();
         return new BrokerResponse(0, data, "").toString();
     }
