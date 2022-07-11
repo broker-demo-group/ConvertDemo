@@ -48,6 +48,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf()
                 .disable()
+                .cors(cors -> cors.disable())
                 .formLogin()
                 .loginPage("/login.html")
                 .loginProcessingUrl("/perform_login")
