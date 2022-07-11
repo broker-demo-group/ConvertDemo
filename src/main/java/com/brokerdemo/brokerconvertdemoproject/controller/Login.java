@@ -18,7 +18,7 @@ public class Login {
     @Autowired
     AuthenticationManager authenticationManager;
 
-    @PostMapping("/api/restlogin")
+    @PostMapping("/restlogin")
     public Map<String,String> login(@RequestBody Map<String,Object> paramsMap){
         Gson gson = new Gson();
         System.out.println(gson.toJson(paramsMap));
