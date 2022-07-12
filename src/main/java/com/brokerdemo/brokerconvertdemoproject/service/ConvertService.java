@@ -32,7 +32,7 @@ public class ConvertService {
     /**
      * 根据用户的 quoteRequest 进行闪兑交易
      */
-    public void convert(ConvertRequest convertRequest, String username) {
+    public ParamMap convert(ConvertRequest convertRequest, String username) {
 //        ConvertRequest -> checkRequest -> getQuote -> doConvert
 
         Client client = accountService.getSubAccountClint(username);
@@ -54,6 +54,12 @@ public class ConvertService {
                 accountService.fundingTransfer2Trading(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
             }
         }
+        ParamMap paramMap = new ParamMap();
+        String fromCcy = convertRequest.getFromCcy();
+        String toCcy = convertRequest.getToCcy();
+        paramMap.add(fromCcy, quote.getBaseCcy().equals(fromCcy)?quote.baseSz:quote.quoteSz);
+        paramMap.add(toCcy,quote.getBaseCcy().equals(toCcy)?quote.baseSz:quote.quoteSz);
+        return paramMap;
     }
 
     /**
