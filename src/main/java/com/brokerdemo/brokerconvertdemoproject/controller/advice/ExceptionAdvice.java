@@ -33,10 +33,10 @@ public class ExceptionAdvice implements ErrorCode {
             msg = e.getMessage();
         } else if (e instanceof MongoException) {
             code = DB_ERROR;
-            msg= "数据库发生未知错误，该资源不存在！";
+            msg= "数据库发生未知错误:"+e.getMessage();
         } else {
             code = UNDEFINED_ERROR;
-            msg = "发生未知错误！";
+            msg = "发生未知错误:"+e.getMessage();
             // 记录日志
 
         }
