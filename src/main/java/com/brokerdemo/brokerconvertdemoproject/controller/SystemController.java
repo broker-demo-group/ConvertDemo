@@ -32,7 +32,7 @@ public class SystemController {
     @Resource
     Client client;
 
-    @GetMapping("system/status/{state}")
+    @GetMapping("/system/status/{state}")
     @ApiOperation(value = "获取 okx 系统状态", notes = "notes")
     @ApiImplicitParams({@ApiImplicitParam(name = "state", value = "state", required = true, paramType = "path", example = "canceled")})
     public String getStatus(@PathVariable String state) throws IOException {
