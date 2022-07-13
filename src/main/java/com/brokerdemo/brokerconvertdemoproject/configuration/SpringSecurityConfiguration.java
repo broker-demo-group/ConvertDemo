@@ -34,12 +34,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SpringSecurityConfiguration(@Autowired UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
-
-   /** @Bean
-    public AuthenticationManager customAuthenticationManager() throws Exception {
-        return authenticationManager();
-    }**/
-
+    
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
