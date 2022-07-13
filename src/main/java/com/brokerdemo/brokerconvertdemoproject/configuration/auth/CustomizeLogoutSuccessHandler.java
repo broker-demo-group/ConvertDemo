@@ -1,6 +1,7 @@
 package com.brokerdemo.brokerconvertdemoproject.configuration.auth;
 
 import com.brokerdemo.brokerconvertdemoproject.cache.Cache;
+import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -13,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 /**
  * @author: bowen
  * @description:
@@ -26,18 +29,13 @@ public class CustomizeLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request,
                                 HttpServletResponse response,
-                                Authentication authentication) {
+                                Authentication authentication) throws IOException {
 
-        if (authentication != null) {
-            String token = response.getHeader("token");
-            if (StringUtils.hasText(token)) {
-                cache.remove(token);
-            } else {
-                System.out.println(this.getClass() + "Error");
-            }
-
-//            SecurityContext
-        }
+        PrintWriter out = response.getWriter();
+        BrokerResponse brokerResponse = new BrokerResponse(0,"","logout success");
+        out.println(brokerResponse.toString());
+        out.flush();
+        out.close();
 
 
     }

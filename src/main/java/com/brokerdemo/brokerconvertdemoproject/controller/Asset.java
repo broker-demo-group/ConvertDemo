@@ -1,5 +1,9 @@
 package com.brokerdemo.brokerconvertdemoproject.controller;
 
+import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
+import com.brokerdemo.brokerconvertdemoproject.dao.UserRepository;
+import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.entity.User;
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.brokerdemo.brokerconvertdemoproject.service.AccountService;
 import com.google.gson.JsonObject;
@@ -43,6 +47,8 @@ public class Asset {
 
     @Resource
     AccountService accountService;
+    @Resource
+    SubAccountRepository subAccountRepository;
 
     @ApiOperation(value = "获取所有币的信息和图标的url", notes = "some notes ")
     @GetMapping(value = "/asset/currencies")
@@ -89,5 +95,25 @@ public class Asset {
             accountService.tradingTransfer2Funding(subAccountClint,amount,ccy);
         }
         return new BrokerResponse(0, "", "success").toString();
+    }
+
+    @ApiOperation(value = "母账户给子账户转账USDT", notes = "some notes ")
+    @GetMapping(value = "/broker/transfer")
+    @RolesAllowed("ROLE_USER")
+    public String transfer(
+                           @RequestParam(value = "ccy") String ccy,
+                           @RequestParam(value = "amount") String amount,
+                           @ApiIgnore Authentication authentication) throws IOException {
+        SubAccount subAccountByUserName = subAccountRepository.findSubAccountByUserName(authentication.getName());
+
+        ParamMap param1 = new ParamMap();
+        param1.add("ccy", ccy);
+        param1.add("amt", amount);
+        param1.add("from", "6");
+        param1.add("to", "6");
+        param1.add("subAcct", subAccountByUserName.getSubAccountName());
+        param1.add("type", "1");
+        JsonObject jsonObject = client.getCommonService().postExecute(param1, "/api/v5/asset/transfer", JsonObject.class);
+        return new BrokerResponse(0, jsonObject.toString(), "").toString();
     }
 }

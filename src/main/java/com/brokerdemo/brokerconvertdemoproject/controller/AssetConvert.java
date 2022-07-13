@@ -14,6 +14,7 @@ import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +53,7 @@ public class AssetConvert {
 
     @ApiOperation(value = "获取所有支持闪兑的虚拟货币列表", notes = "some notes ")
     @GetMapping(value = "/asset/convert/currencies")
+    @RolesAllowed("ROLE_USER")
     public String getCurrencies() {
         log.info("/asset/convert/currencies");
         String data = client.getAssetConvert().getConvertCurrencies(new ParamMap(), JsonObject.class).toString();
@@ -76,12 +78,13 @@ public class AssetConvert {
     @RolesAllowed("ROLE_USER")
     public String convertTrade(@RequestBody ConvertRequest convertRequest, @ApiIgnore Authentication authentication) {
         String username = authentication.getName();
+        ParamMap responseParam = new ParamMap();
         try {
-            convertService.convert(convertRequest, username);
+            responseParam = convertService.convert(convertRequest, username);
         } catch (OkxApiException e) {
             return new BrokerResponse(e.getCode(), "", e.getMessage()).toString();
         }
-        return new BrokerResponse().toString();
+        return new BrokerResponse(0,responseParam.getPayLoadJson()  ,"succ").toString();
     }
 
 
