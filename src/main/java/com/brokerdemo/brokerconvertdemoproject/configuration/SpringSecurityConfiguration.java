@@ -1,5 +1,6 @@
 package com.brokerdemo.brokerconvertdemoproject.configuration;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +11,20 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -51,16 +63,33 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable()
                 .cors(cors -> cors.disable())
                 .formLogin()
-                .loginPage("/login.html")
                 .loginProcessingUrl("/perform_login")
                 .failureUrl("/login.html?error=true")
                 .successForwardUrl("/dashboard")
+                .and()
+                .logout().logoutSuccessHandler(new LogoutSuccessHandler() {
+                    @Override
+                    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                        PrintWriter out = response.getWriter();
+                        Map<String,String> map = new HashMap<>();
+                        map.put("action","logout");
+                        map.put("user",authentication.getName());
+                        map.put("status","success");
+                        Gson gson = new Gson();
+                        out.println(gson.toJson(map));
+                        out.flush();
+                        out.close();
+                    }
+                 })
                 .and()
                 .authorizeRequests()
                 .antMatchers("/register/**").permitAll()
                 .antMatchers("/api/restlogin/**").permitAll()
                 .antMatchers("/api/restlogin**").permitAll()
                 .antMatchers("/api/restlogin").permitAll()
+                .antMatchers("/swagger-ui/**").permitAll()
+                .antMatchers("/asset/currencies").permitAll()
+                .antMatchers("/asset/convert/currencies").permitAll()
                 .and()
                 .httpBasic()
                 .and()
