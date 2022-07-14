@@ -71,11 +71,7 @@ public class Asset {
         String username = authentication.getName();
         log.info("GET /api/v5/asset/balances/{}  user:{}", ccy,username);
         String data;
-        try {
             data = accountService.getAccountBalance(username, ccy);
-        }catch (RuntimeException e){
-            return new BrokerResponse(UNDEFINED_ERROR,"","未知错误").toString();
-        }
         return new BrokerResponse(0, data, "").toString();
     }
     @ApiOperation(value = "资金账户与交易账户资金转移 [1:funding to trading] [2:trading to funding]", notes = "some notes ")
@@ -105,6 +101,7 @@ public class Asset {
                            @RequestParam(value = "amount") String amount,
                            @ApiIgnore Authentication authentication) throws IOException {
         SubAccount subAccountByUserName = subAccountRepository.findSubAccountByUserName(authentication.getName());
+        System.out.println("broker trading balance:"+accountService.getFundingBalance(client,ccy));
 
         ParamMap param1 = new ParamMap();
         param1.add("ccy", ccy);
@@ -114,6 +111,7 @@ public class Asset {
         param1.add("subAcct", subAccountByUserName.getSubAccountName());
         param1.add("type", "1");
         JsonObject jsonObject = client.getCommonService().postExecute(param1, "/api/v5/asset/transfer", JsonObject.class);
+        jsonObject.addProperty("broker:",accountService.getFundingBalance(client,ccy));
         return new BrokerResponse(0, jsonObject.toString(), "").toString();
     }
 }

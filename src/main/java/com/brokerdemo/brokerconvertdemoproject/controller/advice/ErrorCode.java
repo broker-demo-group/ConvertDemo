@@ -15,6 +15,7 @@ public interface ErrorCode {
     int CONVERT_ERROR = 201;
     int REQUIRE_CONVERTPAIR_ERROR = 202;
     int REQUIRE_QUOTE_ERROR = 203;
+    int BALANCE_INSUFFICIENT = 204;
 
 
 }

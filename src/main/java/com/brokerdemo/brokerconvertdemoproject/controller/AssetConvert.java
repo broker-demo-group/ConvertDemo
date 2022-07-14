@@ -65,12 +65,8 @@ public class AssetConvert {
     public String getQuote(@RequestBody QuoteRequest quoteRequest,@ApiIgnore Authentication authentication) {
         String username = authentication.getName();
         String data;
-        try {
             Client subAccountClint = accountService.getSubAccountClint(username);
             data = convertService.getQuote(subAccountClint, quoteRequest).toString();
-        } catch (RuntimeException e) {
-            return new BrokerResponse(100, "", e.getMessage()).toString();
-        }
         return new BrokerResponse(0, data, "").toString();
     }
 
@@ -79,11 +75,7 @@ public class AssetConvert {
     public String convertTrade(@RequestBody ConvertRequest convertRequest, @ApiIgnore Authentication authentication) {
         String username = authentication.getName();
         ParamMap responseParam = new ParamMap();
-        try {
             responseParam = convertService.convert(convertRequest, username);
-        } catch (OkxApiException e) {
-            return new BrokerResponse(e.getCode(), "", e.getMessage()).toString();
-        }
         return new BrokerResponse(0,responseParam.getPayLoadJson()  ,"succ").toString();
     }
 
