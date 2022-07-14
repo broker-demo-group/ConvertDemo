@@ -51,8 +51,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(bCryptPasswordEncoder());
     }
 
-    @Autowired
-    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+//    @Autowired
+//    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
     @Autowired
     CustomizeLogoutSuccessHandler customizeLogoutSuccessHandler;
 
@@ -82,8 +82,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-//        // 添加 jwt 认证
-        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+////        // 添加 jwt 认证
+//        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeRequests()
                 .antMatchers("/register/**").permitAll()
@@ -92,6 +92,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/asset/convert/currencies").permitAll()
                 .antMatchers("/api/**").permitAll()
                 .antMatchers("/v2/**").permitAll()
+                .antMatchers("/restlogin").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic()
                 .and()
@@ -113,8 +114,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable();
 
 //        让Security永远不会创建HttpSession，它不会使用HttpSession来获取SecurityContext
-        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().headers().cacheControl();
+//        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and().headers().cacheControl();
 
         // logout 成功后的处理器
         http.logout().logoutSuccessHandler(customizeLogoutSuccessHandler);
