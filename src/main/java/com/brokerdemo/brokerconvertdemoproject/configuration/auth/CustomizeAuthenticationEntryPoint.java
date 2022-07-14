@@ -1,6 +1,7 @@
 package com.brokerdemo.brokerconvertdemoproject.configuration.auth;
 
 
+import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.springframework.security.core.AuthenticationException;
@@ -21,9 +22,7 @@ import java.io.IOException;
 public class CustomizeAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
-        JsonObject result = new JsonObject();
-        result.add("msg",new JsonPrimitive("login in"));
-        httpServletResponse.setContentType("text/json;charset=utf-8");
-        httpServletResponse.getWriter().write(result.toString());
+        BrokerResponse brokerResponse = new BrokerResponse(901,"Auth error",e.getMessage());
+        httpServletResponse.getWriter().write(brokerResponse.toString());
     }
 }
