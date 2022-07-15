@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.BALANCE_INSUFFICIENT;
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.CONVERT_ERROR;
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_QUOTE_ERROR;
@@ -33,10 +34,10 @@ public class ConvertService {
      * 根据用户的 quoteRequest 进行闪兑交易
      */
     public ParamMap convert(ConvertRequest convertRequest, String username) {
-//        ConvertRequest -> checkRequest -> getQuote -> doConvert
+//        ConvertRequest -> checkRequest 余额-> getQuote 询价 -> doConvert 闪兑交易
 
         Client client = accountService.getSubAccountClint(username);
-        double transferAmount = checkRequest(client, convertRequest);
+        double transferAmount  = checkRequest(client, convertRequest);
         Quote quote = getQuote(client, convertRequest);
         boolean isRollBack = false;
         if(transferAmount != 0){
@@ -49,7 +50,7 @@ public class ConvertService {
         }catch (OkxApiException e ){
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
         }finally {
-            //  若 doConvert 失败，且需要回滚，则isRollBack = true
+            //  若 doConvert 失败，需要回滚，则isRollBack = true
             if(isRollBack){
                 accountService.fundingTransfer2Trading(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
             }
@@ -149,17 +150,17 @@ public class ConvertService {
 
         if ("funding".equals(mode)) {
             if (fundingBalance < amount) {
-                throw new OkxApiException("balance insufficient", CONVERT_ERROR);
+                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
             }
         } else if ("trading".equals(mode)) {
             if (tradingBalance < amount) {
-                throw new OkxApiException("balance insufficient", CONVERT_ERROR);
+                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
             }
             return amount;
         } else {
             // mode = both
             if (amount > fundingBalance + tradingBalance) {
-                throw new OkxApiException("balance insufficient", CONVERT_ERROR);
+                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
             }
             if (amount > fundingBalance) {
                 return amount - fundingBalance;

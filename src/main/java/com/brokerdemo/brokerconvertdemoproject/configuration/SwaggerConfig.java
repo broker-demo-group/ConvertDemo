@@ -36,7 +36,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 // 用于生成API信息
                 .apiInfo(apiInfo())
-                .host("broker.tinykittens.dev/backendservice")
+//                .host("broker.tinykittens.dev/backendservice")
                 // 函数返回一个ApiSelectorBuilder实例,用来控制接口被swagger做成文档
                 .select()
                 // 用于指定扫描哪个包下的接口
