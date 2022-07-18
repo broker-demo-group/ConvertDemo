@@ -16,7 +16,6 @@ public class LocalCache implements Cache {
 
     @Override
     public String get(String key) {
-
         return cache.getIfPresent(key);
     }
 

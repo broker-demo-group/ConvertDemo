@@ -17,7 +17,7 @@ import java.io.IOException;
 public class CustomizeAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
-        BrokerResponse brokerResponse = new BrokerResponse(901,"Auth error",e.getMessage());
+        BrokerResponse brokerResponse = new BrokerResponse(901,"\"Auth error\"",e.getMessage());
         httpServletResponse.getWriter().write(brokerResponse.toString());
     }
 }
