@@ -1,9 +1,7 @@
 package com.brokerdemo.brokerconvertdemoproject.configuration.auth;
 
 import com.brokerdemo.brokerconvertdemoproject.cache.Cache;
-import com.brokerdemo.brokerconvertdemoproject.cache.LocalCache;
 import com.brokerdemo.brokerconvertdemoproject.utils.JwtTokenUtil;
-import com.brokerdemo.brokerconvertdemoproject.utils.MongoUserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.annotation.Resource;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

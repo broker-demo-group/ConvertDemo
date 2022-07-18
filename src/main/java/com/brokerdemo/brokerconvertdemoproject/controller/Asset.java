@@ -1,9 +1,7 @@
 package com.brokerdemo.brokerconvertdemoproject.controller;
 
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
-import com.brokerdemo.brokerconvertdemoproject.dao.UserRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
-import com.brokerdemo.brokerconvertdemoproject.entity.User;
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.brokerdemo.brokerconvertdemoproject.service.AccountService;
 import com.google.gson.JsonObject;
@@ -15,23 +13,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
-import springfox.documentation.spring.web.json.Json;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
-
-import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.UNDEFINED_ERROR;
-
 /**
  * @author: bowen
  * @description:

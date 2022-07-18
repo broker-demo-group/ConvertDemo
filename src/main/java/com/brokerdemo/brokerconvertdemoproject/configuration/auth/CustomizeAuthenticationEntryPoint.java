@@ -2,14 +2,9 @@ package com.brokerdemo.brokerconvertdemoproject.configuration.auth;
 
 
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import springfox.documentation.spring.web.json.Json;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

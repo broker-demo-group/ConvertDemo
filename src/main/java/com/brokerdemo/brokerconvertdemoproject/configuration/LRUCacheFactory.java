@@ -1,7 +1,6 @@
 package com.brokerdemo.brokerconvertdemoproject.configuration;
 
 import org.okxbrokerdemo.Client;
-import org.okxbrokerdemo.OkxSDK;
 import com.brokerdemo.brokerconvertdemoproject.utils.LRUCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

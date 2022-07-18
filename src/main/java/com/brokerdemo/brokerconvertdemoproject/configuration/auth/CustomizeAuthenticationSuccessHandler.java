@@ -1,19 +1,11 @@
 package com.brokerdemo.brokerconvertdemoproject.configuration.auth;
 
 import com.brokerdemo.brokerconvertdemoproject.cache.Cache;
-import com.brokerdemo.brokerconvertdemoproject.cache.LocalCache;
 import com.brokerdemo.brokerconvertdemoproject.utils.JwtTokenUtil;
-import com.brokerdemo.brokerconvertdemoproject.utils.MongoUserDetail;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

@@ -1,6 +1,10 @@
 package com.brokerdemo.brokerconvertdemoproject.controller.advice;
 
-
+/**
+ * @author: bowen
+ * @description:
+ * @date: 2022/7/18  3:06 PM
+ **/
 public interface ErrorCode {
 
     // 通用异常
