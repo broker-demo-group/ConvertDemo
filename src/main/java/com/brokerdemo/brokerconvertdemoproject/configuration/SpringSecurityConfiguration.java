@@ -43,16 +43,12 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(@Autowired AuthenticationManagerBuilder auth) throws Exception {
-
-//        auth.inMemoryAuthentication().passwordEncoder(bCryptPasswordEncoder())
-//                .withUser("zhou").password("123").roles("USER");
-//        auth.authenticationProvider(myAuthenticationProvider);
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(bCryptPasswordEncoder());
     }
 
-//    @Autowired
-//    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+    @Autowired
+    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
     @Autowired
     CustomizeLogoutSuccessHandler customizeLogoutSuccessHandler;
 
@@ -64,14 +60,9 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     CustomizeAuthenticationEntryPoint customizeAuthenticationEntryPoint;
-    @Override @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
 
-        return super.authenticationManagerBean();
-    }
-
-        @Override
-    public void configure(WebSecurity web) throws Exception {
+    @Override
+    public void configure(WebSecurity web){
         //swagger2所需要用到的静态资源，允许访问
         web.ignoring().antMatchers("/v2/api-docs",
                 "/swagger-resources/configuration/ui",
@@ -79,11 +70,12 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/swagger-resources/configuration/security",
                 "/swagger-ui.html");
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-////        // 添加 jwt 认证
-//        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+//        // 添加 jwt 认证
+        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeRequests()
                 .antMatchers("/register/**").permitAll()
@@ -92,7 +84,6 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/asset/convert/currencies").permitAll()
                 .antMatchers("/api/**").permitAll()
                 .antMatchers("/v2/**").permitAll()
-                .antMatchers("/restlogin").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic()
                 .and()
@@ -114,8 +105,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable();
 
 //        让Security永远不会创建HttpSession，它不会使用HttpSession来获取SecurityContext
-//        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and().headers().cacheControl();
+        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().headers().cacheControl();
 
         // logout 成功后的处理器
         http.logout().logoutSuccessHandler(customizeLogoutSuccessHandler);

@@ -21,10 +21,7 @@ import java.util.Objects;
 public class Register {
     @Autowired
     private NewUserCreator newUserCreator;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private LocalCache cache;
+
 
     @GetMapping("/register")
     public String register() {

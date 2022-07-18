@@ -32,11 +32,9 @@ public class CustomizeLogoutSuccessHandler implements LogoutSuccessHandler {
                                 Authentication authentication) throws IOException {
         String user = authentication.getName();
         PrintWriter out = response.getWriter();
-        BrokerResponse brokerResponse = new BrokerResponse(0,"",user + " logout success");
+        BrokerResponse brokerResponse = new BrokerResponse(0, "logout success", user + " logout success");
         out.println(brokerResponse.toString());
         out.flush();
         out.close();
-
-
     }
 }
