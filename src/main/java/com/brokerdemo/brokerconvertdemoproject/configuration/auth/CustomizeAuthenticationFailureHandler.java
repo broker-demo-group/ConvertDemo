@@ -25,12 +25,12 @@ public class CustomizeAuthenticationFailureHandler extends ExceptionMappingAuthe
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException {
         //直接输出json格式的响应信息
         response.setContentType("application/json;charset=utf-8");
-        new BrokerResponse(101,"\"\"",e.getMessage());
+        BrokerResponse brokerResponse = new BrokerResponse(101, "\"\"", e.getMessage());
         PrintWriter out = response.getWriter();
-        out.write(e.getMessage());
+        out.write(brokerResponse.toString());
         out.flush();
         out.close();
-        System.out.println("FailureHandler"+request.getQueryString());
+//        System.out.println("FailureHandler"+request.getQueryString());
 
     }
 }

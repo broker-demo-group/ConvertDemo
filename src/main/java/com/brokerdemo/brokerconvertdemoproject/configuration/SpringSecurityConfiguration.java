@@ -82,6 +82,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/asset/convert/currencies").permitAll()
                 .antMatchers("/api/**").permitAll()
                 .antMatchers("/v2/**").permitAll()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/logout").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic()
                 .and()

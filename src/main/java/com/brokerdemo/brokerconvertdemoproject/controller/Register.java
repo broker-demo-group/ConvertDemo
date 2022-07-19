@@ -43,7 +43,13 @@ public class Register {
 
     @PostMapping("/login")
     @ResponseBody
-    public Map<String, Object> register(@RequestParam String userName, @RequestParam String passWord) {
+    public Map<String, Object> login(@RequestParam String username, @RequestParam String password) {
+        return null;
+    }
+
+    @PostMapping("/logout")
+    @ResponseBody
+    public Map<String, Object> logout() {
         return null;
     }
 }
