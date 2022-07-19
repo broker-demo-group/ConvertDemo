@@ -113,9 +113,11 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
         corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
