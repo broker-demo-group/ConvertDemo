@@ -1,4 +1,4 @@
-package com.brokerdemo.brokerconvertdemoproject.controller.advice;
+package com.brokerdemo.brokerconvertdemoproject.exception;
 
 
 public interface ErrorCode {

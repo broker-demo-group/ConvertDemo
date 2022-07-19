@@ -1,57 +1,50 @@
 package com.brokerdemo.brokerconvertdemoproject.response;
+
+import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * @author: bowen
  * @description:
  * @date: 2022/7/5  10:20 AM
  **/
-public class BrokerResponse {
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class BrokerResponse<T> {
 
-    int code;
-    String data;
-    String message;
+    private Integer code;
+    private T data;
+    private String message;
 
-    public BrokerResponse(int code,String data, String message) {
-        this.code = code;
-        this.data = data;
-        this.message = message;
+
+    public static BrokerResponse error(BusinessExceptionEnum businessExceptionEnum) {
+        return BrokerResponse.builder()
+                .code(businessExceptionEnum.getCode())
+                .message(businessExceptionEnum.getMsg())
+                .build();
     }
 
-    public BrokerResponse() {
-        this.code = 0;
-        this.data = "";
-        this.message = "";
+    public static BrokerResponse success() {
+        return BrokerResponse.builder()
+                .code(BusinessExceptionEnum.SUCCESS.getCode())
+                .message(BusinessExceptionEnum.SUCCESS.getMsg())
+                .build();
+
     }
 
-    public int getCode() {
-        return code;
+    public static <T> BrokerResponse success(T data) {
+        return BrokerResponse.builder()
+                .code(BusinessExceptionEnum.SUCCESS.getCode())
+                .data(data)
+                .message(BusinessExceptionEnum.SUCCESS.getMsg())
+                .build();
+
     }
 
-    public void setCode(int code) {
-        this.code = code;
-    }
 
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-                "\"code\":\"" + code +
-                "\", \"data\":" + data +
-                ", \"message\":\"" + message + '\"' +
-                '}';
-    }
 }
