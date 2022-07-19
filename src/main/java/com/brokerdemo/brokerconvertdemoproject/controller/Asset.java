@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -30,7 +31,7 @@ import java.io.IOException;
 @Slf4j
 @Api(tags = "Asset Backend Api")
 @RestController
-//@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")
 public class Asset {
     @Resource
     Client client;

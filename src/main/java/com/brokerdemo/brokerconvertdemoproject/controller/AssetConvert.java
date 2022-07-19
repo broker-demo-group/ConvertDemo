@@ -35,7 +35,7 @@ import javax.annotation.security.RolesAllowed;
  **/
 @Slf4j
 @Api(tags = "Convert Backend Api")
-//@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")
 @RestController
 /**
  *
