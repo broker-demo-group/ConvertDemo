@@ -40,4 +40,10 @@ public class Register {
         resultMap.put("status", "error");
         return resultMap;
     }
+
+    @PostMapping("/login")
+    @ResponseBody
+    public Map<String, Object> register(@RequestParam String userName, @RequestParam String passWord) {
+        return null;
+    }
 }

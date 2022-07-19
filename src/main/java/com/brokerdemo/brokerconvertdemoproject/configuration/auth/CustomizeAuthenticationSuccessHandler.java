@@ -38,7 +38,7 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
         //以json格式对外输出身份信息
         System.out.println("创建token：" + principal);
         System.out.println("创建token：" + token);
-        BrokerResponse brokerResponse = new BrokerResponse(0, "\"login success\"", username + " login success");
+        BrokerResponse brokerResponse = new BrokerResponse(0, "\""+token+"\"", username + " login success");
         out.println(brokerResponse.toString());
         out.flush();
         out.close();
