@@ -12,9 +12,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.CONVERT_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_QUOTE_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.BALANCE_INSUFFICIENT;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.CONVERT_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_QUOTE_ERROR;
 
 
 /**
@@ -32,17 +33,34 @@ public class ConvertService {
     /**
      * 根据用户的 quoteRequest 进行闪兑交易
      */
-    public void convert(ConvertRequest convertRequest, String username) {
-//        ConvertRequest -> getQuote -> doConvert
+    public ParamMap convert(ConvertRequest convertRequest, String username) {
+//        ConvertRequest -> checkRequest 余额-> getQuote 询价 -> doConvert 闪兑交易
 
-        Client subAccountClient = accountService.getSubAccountClint(username);
-        if(!checkQuote(subAccountClient,convertRequest)){
-            throw new OkxApiException("balance insufficient", CONVERT_ERROR);
+        Client client = accountService.getSubAccountClint(username);
+        double transferAmount  = checkRequest(client, convertRequest);
+        Quote quote = getQuote(client, convertRequest);
+        boolean isRollBack = false;
+        if(transferAmount != 0){
+            accountService.tradingTransfer2Funding(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
+            isRollBack = true;
         }
-        Quote quote = getQuote(subAccountClient, convertRequest);
-        if (!doConvert(subAccountClient, quote)) {
+        try{
+            doConvert(client, quote);
+            isRollBack = false;
+        }catch (OkxApiException e ){
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
+        }finally {
+            //  若 doConvert 失败，需要回滚，则isRollBack = true
+            if(isRollBack){
+                accountService.fundingTransfer2Trading(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
+            }
         }
+        ParamMap paramMap = new ParamMap();
+        String fromCcy = convertRequest.getFromCcy();
+        String toCcy = convertRequest.getToCcy();
+        paramMap.add(fromCcy, quote.getBaseCcy().equals(fromCcy)?quote.baseSz:quote.quoteSz);
+        paramMap.add(toCcy,quote.getBaseCcy().equals(toCcy)?quote.baseSz:quote.quoteSz);
+        return paramMap;
     }
 
     /**
@@ -50,22 +68,27 @@ public class ConvertService {
      *
      * @Return boolean 闪兑是否成功，若闪兑全部成功返回ture
      */
-    public boolean doConvert(Client subAccountClient, Quote quote) {
-        ParamMap param = new ParamMap();
-        param.add("quoteId", quote.getQuoteId());
-        param.add("baseCcy", quote.getBaseCcy());
-        param.add("quoteCcy", quote.getQuoteCcy());
-        param.add("side", quote.getSide());
-        param.add("sz", quote.getRfqSz());
-        param.add("szCcy", quote.getRfqSzCcy());
+    public void doConvert(Client subAccountClient, Quote quote) {
         JsonObject tradeResult;
         try {
+            ParamMap param = new ParamMap();
+            param.add("quoteId", quote.getQuoteId());
+            param.add("baseCcy", quote.getBaseCcy());
+            param.add("quoteCcy", quote.getQuoteCcy());
+            param.add("side", quote.getSide());
+            param.add("sz", quote.getRfqSz());
+            param.add("szCcy", quote.getRfqSzCcy());
             tradeResult = subAccountClient.getAssetConvert().convertTrade(param, JsonObject.class);
         } catch (OkxApiException e) {
             throw new OkxApiException("doConvert:" + e.getMessage(), CONVERT_ERROR);
         }
+
+        tradeResult.get("code");
         String state = tradeResult.get("state").getAsString();
-        return "fullyFilled".equals(state);
+        if(!"fullyFilled".equals(state)){
+            throw new OkxApiException("convert rejected", CONVERT_ERROR);
+        }
+
 
     }
 
@@ -110,9 +133,12 @@ public class ConvertService {
         return convertCurrencyPair;
     }
 
-    public boolean checkQuote(Client client, ConvertRequest convertRequest) {
+    /**
+     * 检查交易模式并返回交易账户需要划转到资金账户的金额
+     */
+    public double checkRequest(Client client, ConvertRequest convertRequest) {
         String mode = convertRequest.getMode();
-        if (!("funding".equals(mode) || "trading".equals(mode) ||"both".equals(mode))) {
+        if (!("funding".equals(mode) || "trading".equals(mode) || "both".equals(mode))) {
             throw new RuntimeException("交易模式错误");
         }
 
@@ -123,21 +149,24 @@ public class ConvertService {
         amount = Double.parseDouble(convertRequest.getAmount());
 
         if ("funding".equals(mode)) {
-            return fundingBalance >= amount;
+            if (fundingBalance < amount) {
+                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
+            }
         } else if ("trading".equals(mode)) {
-            return tradingBalance >= amount;
-        } else if ("both".equals(mode)){
+            if (tradingBalance < amount) {
+                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
+            }
+            return amount;
+        } else {
+            // mode = both
             if (amount > fundingBalance + tradingBalance) {
-                return false;
+                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
             }
             if (amount > fundingBalance) {
-                Double transferAmount = amount - fundingBalance;
-                accountService.tradingTransfer2Funding(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
+                return amount - fundingBalance;
             }
-        }else{
-            throw new RuntimeException("不存在在 mode");
         }
-        return true;
+        return 0;
     }
 
 

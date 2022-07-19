@@ -1,6 +1,10 @@
 package com.brokerdemo.brokerconvertdemoproject.exception;
 
-
+/**
+ * @author: bowen
+ * @description:
+ * @date: 2022/7/18  3:06 PM
+ **/
 public interface ErrorCode {
 
     // 通用异常
@@ -15,6 +19,7 @@ public interface ErrorCode {
     int CONVERT_ERROR = 201;
     int REQUIRE_CONVERTPAIR_ERROR = 202;
     int REQUIRE_QUOTE_ERROR = 203;
+    int BALANCE_INSUFFICIENT = 204;
 
 
 }

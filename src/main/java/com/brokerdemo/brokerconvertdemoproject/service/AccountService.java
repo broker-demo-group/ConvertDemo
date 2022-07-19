@@ -49,13 +49,15 @@ public class AccountService {
         ParamMap paramMap = new ParamMap();
         paramMap.add("ccy",ccy);
         List<JsonObject> assetBalance = client.getAsset().getAssetBalance(paramMap, JsonObject.class);
-
+        if(assetBalance.size() ==0){
+            return "0";
+        }
         return assetBalance.get(0).get("availBal").getAsString();
     }
     public String getTradingBalance(Client client,String ccy){
         String tradingBalance;
         ParamMap paramMap = new ParamMap();
-        paramMap.add("cyy",ccy);
+        paramMap.add("ccy",ccy);
         JsonArray jsonArray =
                 client.getAccount().getBalance(paramMap, JsonObject.class).get(0).get("details").getAsJsonArray();
         if(jsonArray.size()==0){

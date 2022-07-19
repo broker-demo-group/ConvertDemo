@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 @Service
-public class mongoUserDetail implements UserDetailsService {
+public class MongoUserDetail implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
     @Override

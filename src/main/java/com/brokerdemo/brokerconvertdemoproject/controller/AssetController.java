@@ -1,5 +1,7 @@
 package com.brokerdemo.brokerconvertdemoproject.controller;
 
+import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
+import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.brokerdemo.brokerconvertdemoproject.service.AccountService;
 import com.google.gson.JsonObject;
@@ -11,13 +13,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.spring.web.json.Json;
+
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+
+import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.UNDEFINED_ERROR;
 
 /**
  * @author: bowen
@@ -73,5 +84,27 @@ public class AssetController {
             accountService.tradingTransfer2Funding(subAccountClint, amount, ccy);
         }
         return BrokerResponse.success();
+    }
+
+    @ApiOperation(value = "母账户给子账户转账USDT", notes = "some notes ")
+    @GetMapping(value = "/broker/transfer")
+    @RolesAllowed("ROLE_USER")
+    public BrokerResponse transfer(
+                           @RequestParam(value = "ccy") String ccy,
+                           @RequestParam(value = "amount") String amount,
+                           @ApiIgnore Authentication authentication) throws IOException {
+        SubAccount subAccountByUserName = subAccountRepository.findSubAccountByUserName(authentication.getName());
+        System.out.println("broker trading balance:"+accountService.getFundingBalance(client,ccy));
+
+        ParamMap param1 = new ParamMap();
+        param1.add("ccy", ccy);
+        param1.add("amt", amount);
+        param1.add("from", "6");
+        param1.add("to", "6");
+        param1.add("subAcct", subAccountByUserName.getSubAccountName());
+        param1.add("type", "1");
+        JsonObject jsonObject = client.getCommonService().postExecute(param1, "/api/v5/asset/transfer", JsonObject.class);
+        jsonObject.addProperty("broker:",accountService.getFundingBalance(client,ccy));
+        return BrokerResponse.success(jsonObject.toString());
     }
 }
