@@ -9,13 +9,11 @@ import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.stereotype.Service;
-
+import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.BALANCE_INSUFFICIENT;
+import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.CONVERT_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
+import static com.brokerdemo.brokerconvertdemoproject.exception.ErrorCode.REQUIRE_QUOTE_ERROR;
 import javax.annotation.Resource;
-
-import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.BALANCE_INSUFFICIENT;
-import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.CONVERT_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
-import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_QUOTE_ERROR;
 
 
 /**
@@ -34,32 +32,31 @@ public class ConvertService {
      * 根据用户的 quoteRequest 进行闪兑交易
      */
     public ParamMap convert(ConvertRequest convertRequest, String username) {
-//        ConvertRequest -> checkRequest 余额-> getQuote 询价 -> doConvert 闪兑交易
-
+        //  ConvertRequest -> checkRequest 余额-> getQuote 询价 -> doConvert 闪兑交易
         Client client = accountService.getSubAccountClint(username);
-        double transferAmount  = checkRequest(client, convertRequest);
+        double transferAmount = checkRequest(client, convertRequest);
         Quote quote = getQuote(client, convertRequest);
         boolean isRollBack = false;
-        if(transferAmount != 0){
+        if (transferAmount != 0) {
             accountService.tradingTransfer2Funding(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
             isRollBack = true;
         }
-        try{
+        try {
             doConvert(client, quote);
             isRollBack = false;
-        }catch (OkxApiException e ){
+        } catch (OkxApiException e) {
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
-        }finally {
+        } finally {
             //  若 doConvert 失败，需要回滚，则isRollBack = true
-            if(isRollBack){
+            if (isRollBack) {
                 accountService.fundingTransfer2Trading(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
             }
         }
         ParamMap paramMap = new ParamMap();
         String fromCcy = convertRequest.getFromCcy();
         String toCcy = convertRequest.getToCcy();
-        paramMap.add(fromCcy, quote.getBaseCcy().equals(fromCcy)?quote.baseSz:quote.quoteSz);
-        paramMap.add(toCcy,quote.getBaseCcy().equals(toCcy)?quote.baseSz:quote.quoteSz);
+        paramMap.add(fromCcy, quote.getBaseCcy().equals(fromCcy) ? quote.baseSz : quote.quoteSz);
+        paramMap.add(toCcy, quote.getBaseCcy().equals(toCcy) ? quote.baseSz : quote.quoteSz);
         return paramMap;
     }
 
@@ -85,7 +82,7 @@ public class ConvertService {
 
         tradeResult.get("code");
         String state = tradeResult.get("state").getAsString();
-        if(!"fullyFilled".equals(state)){
+        if (!"fullyFilled".equals(state)) {
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
         }
 

@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
-import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.UNDEFINED_ERROR;
-
 /**
  * @author: bowen
  * @description:
@@ -45,6 +43,8 @@ public class AssetController {
 
     @Resource
     AccountService accountService;
+    @Resource
+    SubAccountRepository subAccountRepository;
 
     @ApiOperation(value = "获取所有币的信息和图标的url")
     @GetMapping(value = "/asset/currencies")
