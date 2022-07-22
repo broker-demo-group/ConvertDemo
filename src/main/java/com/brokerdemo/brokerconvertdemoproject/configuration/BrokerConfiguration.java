@@ -2,6 +2,8 @@ package com.brokerdemo.brokerconvertdemoproject.configuration;
 
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.OkxSDK;
+import org.okxbrokerdemo.utils.APIKeyHolder;
+import org.okxbrokerdemo.utils.AutorizationMethod;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,5 +27,16 @@ public class BrokerConfiguration {
     @Bean
     public Client brokerClient(){
         return OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,isSimulate);
+    }
+
+    @Bean
+    public APIKeyHolder getBrokerApikeyHolder(){
+        return APIKeyHolder.builder()
+                .apiKey(apiKey)
+                .secretKey(apiSecretKey)
+                .passPhrase(passPhrase)
+                .isSimluate(true)
+                .autorizationMethod(AutorizationMethod.APIKeyPair)
+                .build();
     }
 }

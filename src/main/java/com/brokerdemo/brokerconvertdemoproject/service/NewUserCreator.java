@@ -55,7 +55,7 @@ public class NewUserCreator {
 //                String subAccountName = "x"+idgenerator.toString();
                 ApiParam param = new ApiParam();
                 param.addParam("subAcct",subAccountName);
-                ApiSubAccountCreateDto dto = client.getBrokerService().createSubAccount(param, ApiSubAccountCreateDto.class);
+                ApiSubAccountCreateDto dto = client.getBroker().createSubAccount(param, ApiSubAccountCreateDto.class);
                 SubAccount tmpAccount = new SubAccount(user.getUserName(),subAccountName);
                 param = new ApiParam();
                 param.addParam("subAcct",tmpAccount.getSubAccountName());
@@ -63,7 +63,8 @@ public class NewUserCreator {
                 param.addParam("passphrase", PassGenerator.generatePassword(16));
                 param.addParam("perm","read_only,trade");
                 param.addParam("ip",boundingIpForSubAccount);
-                ApiSubAccountKeyCreateDto apiSubAccountKeyCreateDto = client.getBrokerService().createSubAccountApiKey(param, ApiSubAccountKeyCreateDto.class);
+                ApiSubAccountKeyCreateDto apiSubAccountKeyCreateDto = client.getBroker().createSubAccountApiKey(param,
+                        ApiSubAccountKeyCreateDto.class);
                 tmpAccount.setApiKey(apiSubAccountKeyCreateDto.getApiKey());
                 tmpAccount.setApiSecret(apiSubAccountKeyCreateDto.getSecretKey());
                 tmpAccount.setPassphrase(apiSubAccountKeyCreateDto.getPassphrase());
