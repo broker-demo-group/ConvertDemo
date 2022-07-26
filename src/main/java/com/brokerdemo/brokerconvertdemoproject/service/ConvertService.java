@@ -1,18 +1,26 @@
 package com.brokerdemo.brokerconvertdemoproject.service;
 
+import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
+import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
+import com.brokerdemo.brokerconvertdemoproject.entity.BalanceEntity;
 import com.brokerdemo.brokerconvertdemoproject.entity.ConvertPair;
 import com.brokerdemo.brokerconvertdemoproject.entity.ConvertRequest;
 import com.brokerdemo.brokerconvertdemoproject.entity.Quote;
 import com.brokerdemo.brokerconvertdemoproject.entity.QuoteRequest;
+import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
 import com.google.gson.JsonObject;
+import com.mongodb.MongoException;
 import org.okxbrokerdemo.Client;
+import org.okxbrokerdemo.OkxSDK;
 import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
-import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.BALANCE_INSUFFICIENT;
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.CONVERT_ERROR;
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_QUOTE_ERROR;
@@ -33,34 +41,17 @@ public class ConvertService {
     /**
      * 根据用户的 quoteRequest 进行闪兑交易
      */
-    public ParamMap convert(ConvertRequest convertRequest, String username) {
-//        ConvertRequest -> checkRequest 余额-> getQuote 询价 -> doConvert 闪兑交易
+    public void convert(ConvertRequest convertRequest, String username) {
+//        ConvertRequest -> getQuote -> doConvert
 
-        Client client = accountService.getSubAccountClint(username);
-        double transferAmount  = checkRequest(client, convertRequest);
-        Quote quote = getQuote(client, convertRequest);
-        boolean isRollBack = false;
-        if(transferAmount != 0){
-            accountService.tradingTransfer2Funding(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
-            isRollBack = true;
+        Client subAccountClient = accountService.getSubAccountClint(username);
+        if(!checkQuote(subAccountClient,convertRequest)){
+            throw new OkxApiException("balance insufficient", CONVERT_ERROR);
         }
-        try{
-            doConvert(client, quote);
-            isRollBack = false;
-        }catch (OkxApiException e ){
+        Quote quote = getQuote(subAccountClient, convertRequest);
+        if (!doConvert(subAccountClient, quote)) {
             throw new OkxApiException("convert rejected", CONVERT_ERROR);
-        }finally {
-            //  若 doConvert 失败，需要回滚，则isRollBack = true
-            if(isRollBack){
-                accountService.fundingTransfer2Trading(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
-            }
         }
-        ParamMap paramMap = new ParamMap();
-        String fromCcy = convertRequest.getFromCcy();
-        String toCcy = convertRequest.getToCcy();
-        paramMap.add(fromCcy, quote.getBaseCcy().equals(fromCcy)?quote.baseSz:quote.quoteSz);
-        paramMap.add(toCcy,quote.getBaseCcy().equals(toCcy)?quote.baseSz:quote.quoteSz);
-        return paramMap;
     }
 
     /**
@@ -68,27 +59,22 @@ public class ConvertService {
      *
      * @Return boolean 闪兑是否成功，若闪兑全部成功返回ture
      */
-    public void doConvert(Client subAccountClient, Quote quote) {
+    public boolean doConvert(Client subAccountClient, Quote quote) {
+        ParamMap param = new ParamMap();
+        param.add("quoteId", quote.getQuoteId());
+        param.add("baseCcy", quote.getBaseCcy());
+        param.add("quoteCcy", quote.getQuoteCcy());
+        param.add("side", quote.getSide());
+        param.add("sz", quote.getRfqSz());
+        param.add("szCcy", quote.getRfqSzCcy());
         JsonObject tradeResult;
         try {
-            ParamMap param = new ParamMap();
-            param.add("quoteId", quote.getQuoteId());
-            param.add("baseCcy", quote.getBaseCcy());
-            param.add("quoteCcy", quote.getQuoteCcy());
-            param.add("side", quote.getSide());
-            param.add("sz", quote.getRfqSz());
-            param.add("szCcy", quote.getRfqSzCcy());
             tradeResult = subAccountClient.getAssetConvert().convertTrade(param, JsonObject.class);
         } catch (OkxApiException e) {
             throw new OkxApiException("doConvert:" + e.getMessage(), CONVERT_ERROR);
         }
-
-        tradeResult.get("code");
         String state = tradeResult.get("state").getAsString();
-        if(!"fullyFilled".equals(state)){
-            throw new OkxApiException("convert rejected", CONVERT_ERROR);
-        }
-
+        return "fullyFilled".equals(state);
 
     }
 
@@ -133,12 +119,9 @@ public class ConvertService {
         return convertCurrencyPair;
     }
 
-    /**
-     * 检查交易模式并返回交易账户需要划转到资金账户的金额
-     */
-    public double checkRequest(Client client, ConvertRequest convertRequest) {
+    public boolean checkQuote(Client client, ConvertRequest convertRequest) {
         String mode = convertRequest.getMode();
-        if (!("funding".equals(mode) || "trading".equals(mode) || "both".equals(mode))) {
+        if (!("funding".equals(mode) || "trading".equals(mode) ||"both".equals(mode))) {
             throw new RuntimeException("交易模式错误");
         }
 
@@ -149,24 +132,21 @@ public class ConvertService {
         amount = Double.parseDouble(convertRequest.getAmount());
 
         if ("funding".equals(mode)) {
-            if (fundingBalance < amount) {
-                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
-            }
+            return fundingBalance >= amount;
         } else if ("trading".equals(mode)) {
-            if (tradingBalance < amount) {
-                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
-            }
-            return amount;
-        } else {
-            // mode = both
+            return tradingBalance >= amount;
+        } else if ("both".equals(mode)){
             if (amount > fundingBalance + tradingBalance) {
-                throw new OkxApiException("balance insufficient", BALANCE_INSUFFICIENT);
+                return false;
             }
             if (amount > fundingBalance) {
-                return amount - fundingBalance;
+                Double transferAmount = amount - fundingBalance;
+                accountService.tradingTransfer2Funding(client, String.valueOf(transferAmount), convertRequest.getFromCcy());
             }
+        }else{
+            throw new RuntimeException("不存在在 mode");
         }
-        return 0;
+        return true;
     }
 
 

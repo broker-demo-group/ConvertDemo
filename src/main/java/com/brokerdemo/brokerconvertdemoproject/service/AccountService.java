@@ -56,12 +56,12 @@ public class AccountService {
     public String getTradingBalance(Client client, String ccy) {
         String tradingBalance;
         ParamMap paramMap = new ParamMap();
-        paramMap.add("ccy", ccy);
+        paramMap.add("cyy",ccy);
         JsonArray jsonArray =
                 client.getAccount().getBalance(paramMap, JsonObject.class).get(0).get("details").getAsJsonArray();
-        if (jsonArray.size() == 0) {
+        if(jsonArray.size()==0){
             tradingBalance = "0";
-        } else {
+        }else{
             tradingBalance = jsonArray.get(0).getAsJsonObject().get("availBal").getAsString();
         }
         return tradingBalance;

@@ -14,7 +14,6 @@ import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +51,7 @@ public class AssetConvert {
     AccountService accountService;
 
     @ApiOperation(value = "获取所有支持闪兑的虚拟货币列表", notes = "some notes ")
+    @RolesAllowed("ROLE_USER")
     @GetMapping(value = "/asset/convert/currencies")
     public String getCurrencies() {
         log.info("/asset/convert/currencies");
@@ -64,8 +64,12 @@ public class AssetConvert {
     public String getQuote(@RequestBody QuoteRequest quoteRequest,@ApiIgnore Authentication authentication) {
         String username = authentication.getName();
         String data;
+        try {
             Client subAccountClint = accountService.getSubAccountClint(username);
             data = convertService.getQuote(subAccountClint, quoteRequest).toString();
+        } catch (RuntimeException e) {
+            return new BrokerResponse(100, "", e.getMessage()).toString();
+        }
         return new BrokerResponse(0, data, "").toString();
     }
 
@@ -73,8 +77,12 @@ public class AssetConvert {
     @RolesAllowed("ROLE_USER")
     public String convertTrade(@RequestBody ConvertRequest convertRequest, @ApiIgnore Authentication authentication) {
         String username = authentication.getName();
-        ParamMap responseParam = convertService.convert(convertRequest, username);
-        return new BrokerResponse(0,responseParam.getPayLoadJson()  ,"succ").toString();
+        try {
+            convertService.convert(convertRequest, username);
+        } catch (OkxApiException e) {
+            return new BrokerResponse(e.getCode(), "", e.getMessage()).toString();
+        }
+        return new BrokerResponse().toString();
     }
 
 

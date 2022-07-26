@@ -81,7 +81,7 @@ public class NewUserCreator {
             log.info("creat subAccount{}",subAccount);
             userRepository.insert(user);
             subAccountRepository.save(subAccount);
-        }catch (RuntimeException e){
+        }catch (DuplicateKeyException e){
             return false;
         }
         return true;

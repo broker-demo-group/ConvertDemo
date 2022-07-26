@@ -9,18 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class BrokerConvertDemoProjectApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
     @Autowired
     UserRepository userRepository;
     @Autowired
     snowflakeIdgenerator idgenerator;
     @Autowired
     NewUserCreator newUserCreator;
-    @Test
-    public void testMongo(){
-        System.out.println(newUserCreator.toString());
-    }
 }
