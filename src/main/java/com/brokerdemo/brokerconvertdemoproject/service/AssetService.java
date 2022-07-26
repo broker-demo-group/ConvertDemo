@@ -9,10 +9,12 @@ import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
-import org.okxbrokerdemo.handler.Asset.QueryCurrencyRes;
-import org.okxbrokerdemo.handler.SubAccount.SetTransOut;
+import org.okxbrokerdemo.handler.asset.QueryCurrencyRes;
 import org.okxbrokerdemo.handler.funding.TransferReq;
+import org.okxbrokerdemo.handler.funding.TransferRes;
 import org.okxbrokerdemo.handler.funding.WithdrawlReq;
+import org.okxbrokerdemo.handler.subaccount.SetTransOutReq;
+import org.okxbrokerdemo.handler.subaccount.SetTransOutRes;
 import org.okxbrokerdemo.utils.APIKeyHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,11 +56,11 @@ public class AssetService {
 
         // 2、子账户转到母账户
         // 分两步 第一步，设置子账户权限；第二部，转钱到母账户
-        SetTransOut setTransOut = SetTransOut.builder()
+        SetTransOutReq setTransOut = SetTransOutReq.builder()
                 .subAcct(subAccount.getSubAccountName())
                 .canTransOut(Boolean.TRUE)
                 .build();
-        List<SetTransOut> setTransOuts = client.getSubAccount().setTransferOut(setTransOut, apiKeyHolder);
+        List<SetTransOutRes> setTransOuts = client.getSubAccount().setTransferOut(setTransOut, apiKeyHolder);
         if (CollectionUtil.isEmpty(setTransOuts)) {
             throw new BusinessException(BusinessExceptionEnum.SET_TRANS_OUT_ERROR);
         }
@@ -70,7 +72,7 @@ public class AssetService {
                 .from("6")
                 .to("6")
                 .build();
-        List<TransferReq> transferReqs = client.getAsset().assetTransfer(req, apiKeyHolder);
+        List<TransferRes> transferReqs = client.getAsset().assetTransfer(req, apiKeyHolder);
         if (CollectionUtil.isEmpty(transferReqs)) {
             throw new BusinessException(BusinessExceptionEnum.TRANSFER_ERROR);
         }
@@ -83,6 +85,6 @@ public class AssetService {
                 .toAddr(toAddr)
                 .fee(fee.toString())
                 .build();
-        client.getAsset().withdrawal(withdrawlReq, parentApiKeyHolder);
+        client.getBroker().withdrawal(withdrawlReq, parentApiKeyHolder);
     }
 }
