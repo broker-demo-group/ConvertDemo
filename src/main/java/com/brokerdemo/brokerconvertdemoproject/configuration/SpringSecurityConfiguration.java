@@ -1,6 +1,10 @@
 package com.brokerdemo.brokerconvertdemoproject.configuration;
 
-import com.google.gson.Gson;
+import com.brokerdemo.brokerconvertdemoproject.configuration.auth.CustomizeAuthenticationEntryPoint;
+import com.brokerdemo.brokerconvertdemoproject.configuration.auth.CustomizeAuthenticationFailureHandler;
+import com.brokerdemo.brokerconvertdemoproject.configuration.auth.CustomizeAuthenticationSuccessHandler;
+import com.brokerdemo.brokerconvertdemoproject.configuration.auth.CustomizeLogoutSuccessHandler;
+import com.brokerdemo.brokerconvertdemoproject.configuration.auth.JwtAuthenticationTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,33 +12,29 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
+
     public SpringSecurityConfiguration(@Autowired UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
-    
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -45,54 +45,89 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(bCryptPasswordEncoder());
     }
-
-    @Override @Bean
+    @Override
+    @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
-
         return super.authenticationManagerBean();
+    }
+
+    @Autowired
+    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+    @Autowired
+    CustomizeLogoutSuccessHandler customizeLogoutSuccessHandler;
+
+    @Autowired
+    CustomizeAuthenticationSuccessHandler customizeAuthenticationSuccessHandler;
+
+    @Autowired
+    CustomizeAuthenticationFailureHandler customizeAuthenticationFailureHandler;
+
+    @Autowired
+    CustomizeAuthenticationEntryPoint customizeAuthenticationEntryPoint;
+
+    @Override
+    public void configure(WebSecurity web){
+        //swagger2所需要用到的静态资源，允许访问
+        web.ignoring().antMatchers("/v2/api-docs",
+                "/swagger-resources/configuration/ui",
+                "/swagger-resources",
+                "/swagger-resources/configuration/security",
+                "/swagger-ui.html");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-                .cors(cors -> cors.disable())
-                .formLogin()
-                .loginProcessingUrl("/perform_login")
-                .failureUrl("/login.html?error=true")
-                .successForwardUrl("/dashboard")
-                .and()
-                .logout().logoutSuccessHandler(new LogoutSuccessHandler() {
-                    @Override
-                    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                        PrintWriter out = response.getWriter();
-                        Map<String,String> map = new HashMap<>();
-                        map.put("action","logout");
-                        map.put("user",authentication.getName());
-                        map.put("status","success");
-                        Gson gson = new Gson();
-                        out.println(gson.toJson(map));
-                        out.flush();
-                        out.close();
-                    }
-                 })
-                .and()
-                .authorizeRequests()
+
+//        // 添加 jwt 认证
+        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.authorizeRequests()
                 .antMatchers("/register/**").permitAll()
-                .antMatchers("/api/restlogin/**").permitAll()
-                .antMatchers("/api/restlogin**").permitAll()
-                .antMatchers("/api/restlogin").permitAll()
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/asset/currencies").permitAll()
                 .antMatchers("/asset/convert/currencies").permitAll()
+                .antMatchers("/api/**").permitAll()
+                .antMatchers("/v2/**").permitAll()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/logout").permitAll()
+                .anyRequest().authenticated()
+                .and().httpBasic()
                 .and()
-                .httpBasic()
-                .and()
-                .authorizeRequests()
-                .anyRequest()
+                .formLogin()
                 .permitAll()
+                // 认证成功时的处理器
+                .successHandler(customizeAuthenticationSuccessHandler)
+                // 认证失败时的处理器
+                .failureHandler(customizeAuthenticationFailureHandler)
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+                .cors()
+                // 解决前后端分离的跨域问题
+                .configurationSource(corsConfigurationSource())
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(customizeAuthenticationEntryPoint)
+                .and()
+                .csrf()
+                .disable();
+
+//        让Security永远不会创建HttpSession，它不会使用HttpSession来获取SecurityContext
+        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().headers().cacheControl();
+
+        // logout 成功后的处理器
+        http.logout().logoutSuccessHandler(customizeLogoutSuccessHandler);
     }
+
+    CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+        corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
+    }
+
 }
+

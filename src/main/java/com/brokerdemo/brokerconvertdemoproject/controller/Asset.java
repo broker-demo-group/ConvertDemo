@@ -104,7 +104,7 @@ public class Asset {
             @RequestParam(value = "amount") String amount,
             @ApiIgnore Authentication authentication) throws IOException {
         SubAccount subAccountByUserName = subAccountRepository.findSubAccountByUserName(authentication.getName());
-        System.out.println("broker trading balance:" + accountService.getFundingBalance(client, ccy));
+        log.info("broker trading balance:" + accountService.getFundingBalance(client, ccy));
 
         ParamMap param1 = new ParamMap();
         param1.add("ccy", ccy);
