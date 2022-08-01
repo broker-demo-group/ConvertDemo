@@ -59,8 +59,6 @@
             <groupId>org.okxbrokerdemo</groupId>
             <artifactId>okxSdk</artifactId>
             <version>1.0.2-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${pom.basedir}/lib/okxSdk-1.0.2-SNAPSHOT.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
