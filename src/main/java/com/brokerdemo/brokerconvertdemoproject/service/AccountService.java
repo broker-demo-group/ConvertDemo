@@ -1,19 +1,25 @@
 package com.brokerdemo.brokerconvertdemoproject.service;
 
+import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import com.brokerdemo.brokerconvertdemoproject.utils.LRUCache;
+import com.brokerdemo.brokerconvertdemoproject.utils.UserUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.OkxSDK;
+import org.okxbrokerdemo.handler.funding.QueryBalanceRes;
 import org.okxbrokerdemo.handler.funding.TransferReq;
 import org.okxbrokerdemo.service.entry.ParamMap;
+import org.okxbrokerdemo.utils.APIKeyHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AccountService {
@@ -23,24 +29,16 @@ public class AccountService {
     SubAccountRepository subAccountRepository;
     @Autowired
     LRUCache<String, Client> lruCache;
+    @Autowired
+    private Client client;
 
-    public String getAccountBalance(String username, String ccy) {
-        ParamMap param = new ParamMap();
-        param.add("ccy", ccy);
-        Client client = getSubAccountClint(username);
-        JsonObject fundingBalance = client.getAsset().getAssetBalance(param, JsonObject.class).get(0);
-        JsonObject tradingBalance = client.getAccount().getBalance(param, JsonObject.class).get(0);
-        JsonObject result = new JsonObject();
-        JsonArray details = tradingBalance.get("details").getAsJsonArray();
-        String trading;
-        if (details.size() == 0) {
-            trading = "0";
-        } else {
-            trading = details.get(0).getAsJsonObject().get("availBal").getAsString();
+    public List<QueryBalanceRes> getAccountBalance(String username, String ccy) {
+        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(username);
+        if (Objects.isNull(subAccount)) {
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }
-        result.addProperty("funding", fundingBalance.get("availBal").getAsString());
-        result.addProperty("trading", trading);
-        return result.toString();
+
+        return client.getFunding().getBalance(ccy, UserUtil.generateAPIKeyHolder(subAccount));
     }
 
     public String getFundingBalance(Client client, String ccy) {

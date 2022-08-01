@@ -1,6 +1,7 @@
 package com.brokerdemo.brokerconvertdemoproject.response;
 
 import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
+import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,4 +48,10 @@ public class BrokerResponse<T> {
     }
 
 
+    public static BrokerResponse error(BusinessException e) {
+        return BrokerResponse.builder()
+                .code(e.getErrorCode())
+                .message(e.getMsg())
+                .build();
+    }
 }

@@ -23,4 +23,11 @@ public class ExceptionAdvice {
         log.error("Unknown exception", e);
         return BrokerResponse.error(BusinessExceptionEnum.SERVER_ERROR);
     }
+
+    @ExceptionHandler(value = BusinessException.class)
+    @ResponseBody
+    public BrokerResponse handleException(BusinessException e) {
+        log.error("BusinessException:code:{},msg:{}", e.getErrorCode(),e.getMsg());
+        return BrokerResponse.error( e);
+    }
 }

@@ -1,7 +1,9 @@
 package com.brokerdemo.brokerconvertdemoproject.exception;
 
 import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
+import lombok.Getter;
 
+@Getter
 public class BusinessException extends RuntimeException {
 
     private Integer errorCode;

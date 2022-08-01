@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum BusinessExceptionEnum {
 
     SUCCESS(0,"success"),
+    REQUEST_ERROR(400,"param is invalid"),
     SERVER_ERROR(500,"server error"),
 
 

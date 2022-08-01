@@ -1,10 +1,9 @@
 package com.brokerdemo.brokerconvertdemoproject.utils;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class snowflakeIdgenerator {
+public class SnowflakeIdgenerator {
     /** 开始时间戳 */
     private final long twepoch = 1420041600000L;
 

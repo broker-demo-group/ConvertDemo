@@ -1,8 +1,8 @@
 package com.brokerdemo.brokerconvertdemoproject;
 
 import com.brokerdemo.brokerconvertdemoproject.dao.UserRepository;
-import com.brokerdemo.brokerconvertdemoproject.service.NewUserCreator;
-import com.brokerdemo.brokerconvertdemoproject.utils.snowflakeIdgenerator;
+import com.brokerdemo.brokerconvertdemoproject.service.UserService;
+import com.brokerdemo.brokerconvertdemoproject.utils.SnowflakeIdgenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -11,7 +11,7 @@ class BrokerConvertDemoProjectApplicationTests {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    snowflakeIdgenerator idgenerator;
+    SnowflakeIdgenerator idgenerator;
     @Autowired
-    NewUserCreator newUserCreator;
+    UserService newUserCreator;
 }

@@ -1,5 +1,6 @@
 package com.brokerdemo.brokerconvertdemoproject.service;
 
+import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
 import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.dao.UserRepository;
@@ -7,31 +8,33 @@ import com.brokerdemo.brokerconvertdemoproject.entity.ApiSubAccountCreateDto;
 import com.brokerdemo.brokerconvertdemoproject.entity.ApiSubAccountKeyCreateDto;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.entity.User;
+import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import com.brokerdemo.brokerconvertdemoproject.utils.PassGenerator;
-import com.brokerdemo.brokerconvertdemoproject.utils.snowflakeIdgenerator;
+import com.brokerdemo.brokerconvertdemoproject.utils.SnowflakeIdgenerator;
 import com.mongodb.DuplicateKeyException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
-import org.okxbrokerdemo.OkxSDK;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
-public class NewUserCreator {
+public class UserService {
     @Autowired
     UserRepository userRepository;
     @Resource
     SubAccountRepository subAccountRepository;
     @Autowired
-    snowflakeIdgenerator idgenerator;
+    SnowflakeIdgenerator idgenerator;
     @Autowired
     Client client;
     @Value("${broker.api.maxRetry}")
@@ -39,10 +42,12 @@ public class NewUserCreator {
 
     @Value("${broker.api.subAccountBoundingIP}")
     String boundingIpForSubAccount;
-    public boolean createCommonUser(User user){
 
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        user.setPassWord(bCryptPasswordEncoder.encode(user.getPassWord()));
+    @Autowired
+    private PasswordEncoder passwordEncoder ;
+
+    public void createCommonUser(User user){
+        user.setPassWord(passwordEncoder.encode(user.getPassWord()));
         List<String> privilage = new ArrayList<>();
         privilage.add("ROLE_USER");
         user.setPrivilage(privilage);
@@ -73,8 +78,8 @@ public class NewUserCreator {
                 reTry+=1;
             }
         }
-        if(subAccount == null){
-            return false;
+        if(Objects.isNull(subAccount)){
+           throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }
         try{
             log.info("creat user{}",user);
@@ -82,8 +87,8 @@ public class NewUserCreator {
             userRepository.insert(user);
             subAccountRepository.save(subAccount);
         }catch (DuplicateKeyException e){
-            return false;
+            throw e;
         }
-        return true;
+
     }
 }

@@ -2,11 +2,12 @@ package com.brokerdemo.brokerconvertdemoproject.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
+import com.brokerdemo.brokerconvertdemoproject.dto.request.TransferReqDTO;
+import com.brokerdemo.brokerconvertdemoproject.dto.request.WithdrawlReqDTO;
 import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
-import com.brokerdemo.brokerconvertdemoproject.entity.request.WithDrawalRequest;
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.brokerdemo.brokerconvertdemoproject.service.AccountService;
-import com.brokerdemo.brokerconvertdemoproject.service.AssetService;
+import com.brokerdemo.brokerconvertdemoproject.service.FundingService;
 import com.google.gson.JsonObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -14,6 +15,9 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
+import org.okxbrokerdemo.constant.AccountTypeEnum;
+import org.okxbrokerdemo.constant.TransferTypeEnum;
+import org.okxbrokerdemo.handler.funding.QueryBalanceRes;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.okxbrokerdemo.utils.APIKeyHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author: bowen
@@ -47,7 +52,7 @@ public class Asset {
     @Resource
     SubAccountRepository subAccountRepository;
     @Autowired
-    private AssetService assetService;
+    private FundingService fundingService;
 
     @ApiOperation(value = "获取所有币的信息和图标的url", notes = "some notes ")
     @GetMapping(value = "/asset/currencies")
@@ -69,12 +74,10 @@ public class Asset {
     })
     @GetMapping(value = "/asset/balances")
     @RolesAllowed("ROLE_USER")
-    public String getAssetBalances(@RequestParam(value = "ccy") String ccy, @ApiIgnore Authentication authentication) throws IOException {
+    public BrokerResponse<List<QueryBalanceRes>> getAssetBalances(@RequestParam(value = "ccy") String ccy,
+                                                                  @ApiIgnore Authentication authentication) throws IOException {
         String username = authentication.getName();
-        log.info("GET /api/v5/asset/balances/{}  user:{}", ccy, username);
-        String data;
-        data = accountService.getAccountBalance(username, ccy);
-        return new BrokerResponse(0, data, "").toString();
+        return BrokerResponse.success(fundingService.getAccountBalance(username, ccy));
     }
 
     @ApiOperation(value = "资金账户与交易账户资金转移 [1:funding to trading] [2:trading to funding]", notes = "some notes ")
@@ -122,8 +125,8 @@ public class Asset {
     @ApiOperation(value = "子账户转出外部钱包", notes = "some notes ")
     @PostMapping(value = "/asset/withdrawal")
     @RolesAllowed("ROLE_USER")
-    public BrokerResponse withdrawal(@RequestBody WithDrawalRequest request, @ApiIgnore Authentication authentication) {
-        assetService.withdrawal(request.getCcy(), request.getAmount(), request.getCcy(), request.getToAddr(), authentication.getName());
+    public BrokerResponse withdrawal(@RequestBody WithdrawlReqDTO request, @ApiIgnore Authentication authentication) {
+        fundingService.withdrawal(request,authentication.getName());
         return BrokerResponse.success();
     }
 }
