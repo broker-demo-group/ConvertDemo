@@ -28,9 +28,7 @@ public class UserAuthService implements UserDetailsService {
         if (Objects.isNull(user)){
             return null;
         }
-        log.info("user pre encode:{}", JSONUtil.toJsonStr(user));
-        user.setPassWord(bCryptPasswordEncoder.encode(user.getPassWord()));
-        log.info("user after encode:{}", JSONUtil.toJsonStr(user));
+        log.info("user:{}", JSONUtil.toJsonStr(user));
 
         return new User(user.getUserName(), user.getPassWord(), !user.isDisable(), true, true, true,
                 Lists.newArrayList());
