@@ -7,7 +7,6 @@ import java.time.Duration;
 @Component
 public class LocalCache implements Cache {
 
-
     private static final com.google.common.cache.Cache<String, String> cache = CacheBuilder.newBuilder()
             .maximumSize(1024)
             .expireAfterAccess(Duration.ofMinutes(30L))

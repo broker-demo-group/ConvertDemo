@@ -57,7 +57,6 @@ public class UserService {
         while(subAccount == null && reTry<=MAX_Retry){
             try{
                 String subAccountName = "x"+idgenerator.nextId();
-//                String subAccountName = "x"+idgenerator.toString();
                 ApiParam param = new ApiParam();
                 param.addParam("subAcct",subAccountName);
                 ApiSubAccountCreateDto dto = client.getBroker().createSubAccount(param, ApiSubAccountCreateDto.class);

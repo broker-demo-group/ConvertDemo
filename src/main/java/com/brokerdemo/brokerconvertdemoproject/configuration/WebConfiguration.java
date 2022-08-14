@@ -20,6 +20,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     }
 
+
     /**
      * 描述: 密码加密算法 BCrypt 推荐使用
      **/

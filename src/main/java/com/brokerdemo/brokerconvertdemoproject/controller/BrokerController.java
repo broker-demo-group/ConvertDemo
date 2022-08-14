@@ -23,7 +23,6 @@ public class BrokerController {
     @Autowired
     private BrokerService brokerService;
 
-
     @GetMapping("/nd/subaccount-deposit-address")
     public BrokerResponse getSubAccountDepositAddress(@RequestParam(value = "ccy") String ccy,
                                                       @ApiIgnore Authentication authentication) {
