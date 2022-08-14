@@ -47,7 +47,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 // 登录URL
-                .antMatchers("/login","/register","/management").permitAll()
+                .antMatchers("/login","/register","/management/**").permitAll()
                 // 跨域预检请求
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // swagger
