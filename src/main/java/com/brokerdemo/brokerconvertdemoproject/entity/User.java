@@ -1,11 +1,17 @@
 package com.brokerdemo.brokerconvertdemoproject.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
 @Document("users")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     @Id
     private String userName;
@@ -17,10 +23,6 @@ public class User {
     private String lastName;
     private String email;
     private List<String> privilage;
-
-    public User() {
-
-    }
 
     public List<String> getPrivilage() {
         return privilage;

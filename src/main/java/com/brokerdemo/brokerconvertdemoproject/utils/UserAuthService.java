@@ -1,5 +1,6 @@
 package com.brokerdemo.brokerconvertdemoproject.utils;
 
+import cn.hutool.json.JSONUtil;
 import com.brokerdemo.brokerconvertdemoproject.dao.UserRepository;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +24,15 @@ public class UserAuthService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("loadUserByUsername 调用");
-        com.brokerdemo.brokerconvertdemoproject.entity.User mongoUser = userRepository.findUserByUserName(username);
-        if (Objects.isNull(mongoUser)){
+        com.brokerdemo.brokerconvertdemoproject.entity.User user = userRepository.findUserByUserName(username);
+        if (Objects.isNull(user)){
             return null;
         }
-        mongoUser.setPassWord(bCryptPasswordEncoder.encode(mongoUser.getPassWord()));
+        log.info("user pre encode:{}", JSONUtil.toJsonStr(user));
+        user.setPassWord(bCryptPasswordEncoder.encode(user.getPassWord()));
+        log.info("user after encode:{}", JSONUtil.toJsonStr(user));
 
-        return new User(mongoUser.getUserName(), mongoUser.getPassWord(), !mongoUser.isDisable(), true, true, true,
+        return new User(user.getUserName(), user.getPassWord(), !user.isDisable(), true, true, true,
                 Lists.newArrayList());
 
     }
