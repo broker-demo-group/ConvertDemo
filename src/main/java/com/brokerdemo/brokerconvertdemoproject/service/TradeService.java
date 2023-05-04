@@ -3,7 +3,7 @@ package com.brokerdemo.brokerconvertdemoproject.service;
 import cn.hutool.core.bean.BeanUtil;
 import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
@@ -27,7 +27,7 @@ public class TradeService {
     private SubAccountRepository subAccountRepository;
 
     public List<QueryOrderDetailRes> getOrder(QueryOrderDetailReq req, String userName) {
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(userName);
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(userName);
         if (Objects.isNull(subAccount)) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }
@@ -38,7 +38,7 @@ public class TradeService {
     }
 
     public List<PlaceOrderRes> placeOrder(PlaceOrderReq req, String userName) {
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(userName);
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(userName);
         if (Objects.isNull(subAccount)) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }

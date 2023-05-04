@@ -7,7 +7,7 @@ import com.brokerdemo.brokerconvertdemoproject.constant.Constant;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.dto.request.TransferReqDTO;
 import com.brokerdemo.brokerconvertdemoproject.dto.request.WithdrawlReqDTO;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import com.brokerdemo.brokerconvertdemoproject.utils.UserUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class FundingService {
     private APIKeyHolder masterApiKeyHolder;
 
     public List<QueryBalanceRes> getAccountBalance(String username, String ccy) {
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(username);
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(username);
         if (Objects.isNull(subAccount)) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }
@@ -55,7 +55,7 @@ public class FundingService {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }
 
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(subAcct);
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(subAcct);
         if (Objects.isNull(subAccount)) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }
@@ -129,7 +129,7 @@ public class FundingService {
             case SUB_ACCOUNT_TO_MASTER_ACCOUNT_FRO_SUB_ACCOUNT:
                 // TODO 子传子需要设置主动转出权限 https://www.okx.com/docs-v5/zh/#rest-api-subaccount-set-permission-of-transfer-out
             case SUB_ACCOUNT_TO_SUB_ACCOUNT:
-                SubAccount subAccount = subAccountRepository.findSubAccountByUserName(userName);
+                SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(userName);
                 if (Objects.isNull(subAccount)) {
                     throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
                 }

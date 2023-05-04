@@ -4,7 +4,7 @@ import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.entity.Asset;
 import com.brokerdemo.brokerconvertdemoproject.entity.BalanceEntity;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
 import org.okxbrokerdemo.Client;
 import org.okxbrokerdemo.OkxSDK;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class UserBalanceQuery {
 
     public List<Asset> assetBalanceQuery(String userName){
 
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(userName);
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(userName);
         Client client = OkxSDK.getClient(subAccount.getApiKey(),subAccount.getApiSecret(),subAccount.getPassphrase(),false);
         ApiParam param = new ApiParam();
         List<Asset> assetList = client.getAsset().getAssetBalance(param, Asset.class);
@@ -31,7 +31,7 @@ public class UserBalanceQuery {
 
 
     public List<BalanceEntity> accountBalanceQuery(String userName) throws IOException {
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(userName);
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(userName);
         Client client = OkxSDK.getClient(subAccount.getApiKey(),subAccount.getApiSecret(),subAccount.getPassphrase(),false);
         ApiParam param = new ApiParam();
         List<BalanceEntity> balanceEntities = client.getAccount().getBalance(param,BalanceEntity.class);

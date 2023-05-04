@@ -2,7 +2,7 @@ package com.brokerdemo.brokerconvertdemoproject.service;
 
 import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import com.brokerdemo.brokerconvertdemoproject.utils.LRUCache;
 import com.brokerdemo.brokerconvertdemoproject.utils.UserUtil;
@@ -13,7 +13,6 @@ import org.okxbrokerdemo.OkxSDK;
 import org.okxbrokerdemo.handler.funding.QueryBalanceRes;
 import org.okxbrokerdemo.handler.funding.TransferReq;
 import org.okxbrokerdemo.service.entry.ParamMap;
-import org.okxbrokerdemo.utils.APIKeyHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class AccountService {
     private Client client;
 
     public List<QueryBalanceRes> getAccountBalance(String username, String ccy) {
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(username);
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(username);
         if (Objects.isNull(subAccount)) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_EXIST);
         }
@@ -91,7 +90,7 @@ public class AccountService {
 
     public Client getSubAccountClint(String username) {
         SubAccount subAccount;
-        subAccount = subAccountRepository.findSubAccountByUserName(username);
+        subAccount = subAccountRepository.findSubAccountByBelongUserId(username);
         if (lruCache.getValue(username) != null) {
             return lruCache.getValue(username);
         }

@@ -2,9 +2,8 @@ package com.brokerdemo.brokerconvertdemoproject.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
-import com.brokerdemo.brokerconvertdemoproject.dto.request.TransferReqDTO;
 import com.brokerdemo.brokerconvertdemoproject.dto.request.WithdrawlReqDTO;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
 import com.brokerdemo.brokerconvertdemoproject.response.BrokerResponse;
 import com.brokerdemo.brokerconvertdemoproject.service.AccountService;
 import com.brokerdemo.brokerconvertdemoproject.service.FundingService;
@@ -15,8 +14,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
-import org.okxbrokerdemo.constant.AccountTypeEnum;
-import org.okxbrokerdemo.constant.TransferTypeEnum;
 import org.okxbrokerdemo.handler.funding.QueryBalanceRes;
 import org.okxbrokerdemo.service.entry.ParamMap;
 import org.okxbrokerdemo.utils.APIKeyHolder;
@@ -58,7 +55,7 @@ public class Asset {
     @GetMapping(value = "/asset/currencies")
     public String getCurrencies(@ApiIgnore Authentication authentication) {
 //        log.info("/asset/currencies  {}",authentication.getPrincipal());
-        SubAccount subAccount = subAccountRepository.findSubAccountByUserName(authentication.getName());
+        SubAccount subAccount = subAccountRepository.findSubAccountByBelongUserId(authentication.getName());
         APIKeyHolder apiKeyHolder = APIKeyHolder.builder().isSimluate(Boolean.TRUE).build();
         BeanUtil.copyProperties(subAccount, apiKeyHolder);
         String data = client.getAsset().getCurrencies(null, apiKeyHolder).toString();
@@ -106,7 +103,7 @@ public class Asset {
             @RequestParam(value = "ccy") String ccy,
             @RequestParam(value = "amount") String amount,
             @ApiIgnore Authentication authentication) throws IOException {
-        SubAccount subAccountByUserName = subAccountRepository.findSubAccountByUserName(authentication.getName());
+        SubAccount subAccountByUserName = subAccountRepository.findSubAccountByBelongUserId(authentication.getName());
         log.info("broker trading balance:" + accountService.getFundingBalance(client, ccy));
 
         ParamMap param1 = new ParamMap();

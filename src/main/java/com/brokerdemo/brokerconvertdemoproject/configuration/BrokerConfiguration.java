@@ -26,7 +26,7 @@ public class BrokerConfiguration {
 
     @Bean
     public Client brokerClient(){
-        return OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,isSimulate);
+        return OkxSDK.getClient(apiKey,apiSecretKey,passPhrase,false);
     }
 
     @Bean
@@ -35,7 +35,7 @@ public class BrokerConfiguration {
                 .apiKey(apiKey)
                 .secretKey(apiSecretKey)
                 .passPhrase(passPhrase)
-                .isSimluate(true)
+                .isSimluate(false)
                 .autorizationMethod(AutorizationMethod.APIKeyPair)
                 .build();
     }

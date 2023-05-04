@@ -1,25 +1,16 @@
 package com.brokerdemo.brokerconvertdemoproject.service;
 
-import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
-import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
-import com.brokerdemo.brokerconvertdemoproject.entity.BalanceEntity;
 import com.brokerdemo.brokerconvertdemoproject.entity.ConvertPair;
 import com.brokerdemo.brokerconvertdemoproject.entity.ConvertRequest;
 import com.brokerdemo.brokerconvertdemoproject.entity.Quote;
 import com.brokerdemo.brokerconvertdemoproject.entity.QuoteRequest;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
 import com.google.gson.JsonObject;
-import com.mongodb.MongoException;
 import org.okxbrokerdemo.Client;
-import org.okxbrokerdemo.OkxSDK;
 import org.okxbrokerdemo.exception.OkxApiException;
 import org.okxbrokerdemo.service.entry.ParamMap;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.CONVERT_ERROR;
 import static com.brokerdemo.brokerconvertdemoproject.controller.advice.ErrorCode.REQUIRE_CONVERTPAIR_ERROR;

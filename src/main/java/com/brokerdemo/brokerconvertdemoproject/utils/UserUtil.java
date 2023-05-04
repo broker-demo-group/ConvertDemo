@@ -1,9 +1,8 @@
 package com.brokerdemo.brokerconvertdemoproject.utils;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
 import org.okxbrokerdemo.utils.APIKeyHolder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component

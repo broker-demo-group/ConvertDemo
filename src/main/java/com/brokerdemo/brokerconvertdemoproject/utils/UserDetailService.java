@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class MongoUserDetail implements UserDetailsService {
+public class UserDetailService implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -21,15 +21,13 @@ public class MongoUserDetail implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("loadUserByUsername 调用");
-        com.brokerdemo.brokerconvertdemoproject.entity.User mongoUser = userRepository.findUserByUserName(username);
-        mongoUser = new com.brokerdemo.brokerconvertdemoproject.entity.User();
-        mongoUser.setUserName(username);
-        mongoUser.setPassWord("123456");
-        mongoUser.setPassWord(bCryptPasswordEncoder.encode(mongoUser.getPassWord()));
+        com.brokerdemo.brokerconvertdemoproject.dao.domain.User user = userRepository.findUserByUserName(username);
+        user = new com.brokerdemo.brokerconvertdemoproject.dao.domain.User();
+        user.setUserName(username);
+        user.setPassWord("123456");
+        user.setPassWord(bCryptPasswordEncoder.encode(user.getPassWord()));
 
-        return new User(mongoUser.getUserName(), mongoUser.getPassWord(), !mongoUser.isDisable(), true, true, true,
-                Lists.newArrayList());
+        return new User(user.getUserName(), user.getPassWord(), !user.getIsDisable(), true, true, true, Lists.newArrayList());
 
     }
 }

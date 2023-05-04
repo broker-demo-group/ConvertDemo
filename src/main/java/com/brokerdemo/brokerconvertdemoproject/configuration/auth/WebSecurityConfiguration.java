@@ -41,7 +41,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 //用于配置直接放行的请求
-                .antMatchers("/login","/register").permitAll()
+                .antMatchers("/user/login","/user/register","/user/kyc/**").permitAll()
                 // swagger
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/swagger-resources").permitAll()

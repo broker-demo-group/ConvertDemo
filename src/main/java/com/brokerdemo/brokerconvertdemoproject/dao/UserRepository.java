@@ -1,13 +1,9 @@
 package com.brokerdemo.brokerconvertdemoproject.dao;
 
-import com.brokerdemo.brokerconvertdemoproject.entity.User;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
-import org.springframework.data.mongodb.repository.Update;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends MongoRepository<User,String> {
-
-    @Query("{_id:'?0'}")
+public interface UserRepository extends JpaRepository<User, Long> {
     User findUserByUserName(String userName);
 
 }

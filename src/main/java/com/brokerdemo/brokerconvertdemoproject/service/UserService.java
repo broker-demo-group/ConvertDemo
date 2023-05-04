@@ -4,10 +4,9 @@ import com.brokerdemo.brokerconvertdemoproject.constant.BusinessExceptionEnum;
 import com.brokerdemo.brokerconvertdemoproject.dao.ApiParam;
 import com.brokerdemo.brokerconvertdemoproject.dao.SubAccountRepository;
 import com.brokerdemo.brokerconvertdemoproject.dao.UserRepository;
-import com.brokerdemo.brokerconvertdemoproject.entity.ApiSubAccountCreateDto;
 import com.brokerdemo.brokerconvertdemoproject.entity.ApiSubAccountKeyCreateDto;
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
-import com.brokerdemo.brokerconvertdemoproject.entity.User;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.User;
 import com.brokerdemo.brokerconvertdemoproject.exception.BusinessException;
 import com.brokerdemo.brokerconvertdemoproject.utils.PassGenerator;
 import com.brokerdemo.brokerconvertdemoproject.utils.SnowflakeIdgenerator;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.okxbrokerdemo.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +36,7 @@ public class UserService {
     @Autowired
     Client client;
     @Value("${broker.api.maxRetry}")
-    int MAX_Retry;
+    int maxRetry;
 
     @Value("${broker.api.subAccountBoundingIP}")
     String boundingIpForSubAccount;
@@ -50,17 +48,16 @@ public class UserService {
         user.setPassWord(passwordEncoder.encode(user.getPassWord()));
         List<String> privilage = new ArrayList<>();
         privilage.add("ROLE_USER");
-        user.setPrivilage(privilage);
+
+        user.setPrivilage(privilage.toString());
 
         SubAccount subAccount = null;
        int reTry=0;
-        while(subAccount == null && reTry<=MAX_Retry){
+        while(subAccount == null && reTry<= maxRetry){
             try{
                 String subAccountName = "x"+idgenerator.nextId();
-//                String subAccountName = "x"+idgenerator.toString();
                 ApiParam param = new ApiParam();
                 param.addParam("subAcct",subAccountName);
-                ApiSubAccountCreateDto dto = client.getBroker().createSubAccount(param, ApiSubAccountCreateDto.class);
                 SubAccount tmpAccount = new SubAccount(user.getUserName(),subAccountName);
                 param = new ApiParam();
                 param.addParam("subAcct",tmpAccount.getSubAccountName());
@@ -68,8 +65,7 @@ public class UserService {
                 param.addParam("passphrase", PassGenerator.generatePassword(16));
                 param.addParam("perm","read_only,trade");
                 param.addParam("ip",boundingIpForSubAccount);
-                ApiSubAccountKeyCreateDto apiSubAccountKeyCreateDto = client.getBroker().createSubAccountApiKey(param,
-                        ApiSubAccountKeyCreateDto.class);
+                ApiSubAccountKeyCreateDto apiSubAccountKeyCreateDto = client.getBroker().createSubAccountApiKey(param, ApiSubAccountKeyCreateDto.class);
                 tmpAccount.setApiKey(apiSubAccountKeyCreateDto.getApiKey());
                 tmpAccount.setApiSecret(apiSubAccountKeyCreateDto.getSecretKey());
                 tmpAccount.setPassphrase(apiSubAccountKeyCreateDto.getPassphrase());
@@ -84,7 +80,7 @@ public class UserService {
         try{
             log.info("creat user{}",user);
             log.info("creat subAccount{}",subAccount);
-            userRepository.insert(user);
+            userRepository.save(user);
             subAccountRepository.save(subAccount);
         }catch (DuplicateKeyException e){
             throw e;

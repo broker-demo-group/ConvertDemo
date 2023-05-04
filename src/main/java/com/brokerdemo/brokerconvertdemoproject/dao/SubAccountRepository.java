@@ -1,13 +1,10 @@
 package com.brokerdemo.brokerconvertdemoproject.dao;
 
-import com.brokerdemo.brokerconvertdemoproject.entity.SubAccount;
-import com.brokerdemo.brokerconvertdemoproject.entity.User;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+import com.brokerdemo.brokerconvertdemoproject.dao.domain.SubAccount;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SubAccountRepository extends MongoRepository<SubAccount,String> {
+public interface SubAccountRepository extends JpaRepository<SubAccount,Long> {
 
-    @Query("{belongUserId:'?0'}")
-    SubAccount findSubAccountByUserName(String userName);
+    SubAccount findSubAccountByBelongUserId(String belongUserId);
 
 }
